@@ -1,7 +1,7 @@
 *-----------------------------------------------------------
 * Title      :CSS422 Disassembler
-* Written by :William T and
-* Date       :February 12, 2020
+* Written by :William T and Ben Fulton
+* Date       :February 29, 2020
 * Description:Final Prjoect for CSS422
 *-----------------------------------------------------------
     ORG    $1000
