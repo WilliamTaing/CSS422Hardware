@@ -453,7 +453,7 @@ LOOP13:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT14
+            BEQ     NEXT15
             JMP     LOOP13
 NEXT15:            
             JMP     FINISH
@@ -508,6 +508,7 @@ FINISH:     SIMHALT             ; halt simulator
 * Put variables and constants here
 
     END    START        ; last line of source
+
 
 
 
