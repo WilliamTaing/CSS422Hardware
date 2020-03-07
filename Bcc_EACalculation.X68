@@ -4,7 +4,7 @@ START:
             BEQ     LOOP1
             MOVEA   A1, A2
             MOVE    #8, D4
-            MOVEA   $1002, A4
+            MOVEA   #$1002, A4
             MOVEA   #$1000, A0
             MOVE    (A0), D2
 LOOP1:
@@ -20,7 +20,6 @@ NEXT1:
 *Get current address (A4 - 2)
             ROL     #8, D3
             MOVE    (A4), D6
-            SUB     #2, D6
 *See if we are getting byte displacement, word displacement, or long displacement
             CMPI    #$00, D3
             BEQ     WORDDIS
@@ -31,7 +30,7 @@ NEXT1:
             JMP     NEXT2
 
 WORDDIS:
-            MOVE    (A4), D5
+            MOVE    A4, D5
             ADD     D5, D6
             JMP     NEXT2
 
@@ -84,6 +83,7 @@ FINISH:     SIMHALT             ; halt simulator
 * Put variables and constants here
 
     END    START        ; last line of source
+
 
 
 
