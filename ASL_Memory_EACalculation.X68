@@ -7,76 +7,78 @@ START:
             MOVE    #3, D4
             MOVEA   #$1000, A0
             MOVE    (A0), D2
-LOOP1:
+ASLMEMLOOP1:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     ADD1
-CONTINUE1:  ROR     #1, D3
+            BCS     ASLMEMADD1
+ASLMEMCONTINUE1:
+            ROR     #1, D3
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT1
-            JMP     LOOP1
+            BEQ     ASLMEMNEXT1
+            JMP     ASLMEMLOOP1
     
 *Get next three bits (mode)
-NEXT1:
+ASLMEMNEXT1:
             ROL     #3, D3
             MOVE    #3, D4
-LOOP2:
+ASLMEMLOOP2:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     ADD2
-CONTINUE2:  ROR     #1, D5
+            BCS     ASLMEMADD2
+ASLMEMCONTINUE2:  
+            ROR     #1, D5
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT2
-            JMP     LOOP2
+            BEQ     ASLMEMNEXT2
+            JMP     ASLMEMLOOP2
 
 *Print out EA
-NEXT2:
+ASLMEMNEXT2:
             CMPI    #0, D5
-            BEQ     DA
+            BEQ     ASLMEMDA
             CMPI    #1, D5
-            BEQ     AA
+            BEQ     ASLMEMAA
             CMPI    #2, D5
-            BEQ     DEREGISTERAA
+            BEQ     ASLMEMDEREGISTERAA
             CMPI    #3, D5
-            BEQ     POSTADDAA
+            BEQ     ASLMEMPOSTADDAA
             CMPI    #4, D5
-            BEQ     PRESUBAA
+            BEQ     ASLMEMPRESUBAA
             CMPI    #5, D5
-            BEQ     D16AA
+            BEQ     ASLMEMD16AA
             CMPI    #6, D5
-            BEQ     D8AXA
+            BEQ     ASLMEMD8AXA
             CMPI    #7, D5
-            BEQ     WLD1
+            BEQ     ASLMEMWLD1
 
-WLD1:
+ASLMEMWLD1:
             CMPI    #0, D3
-            BEQ     WORDA
+            BEQ     ASLMEMWORDA
             CMPI    #1, D3
-            BEQ     LONGA
+            BEQ     ASLMEMLONGA
             
-ADD1:
+ASLMEMADD1:
             ADDI    #1, D3
-            JMP     CONTINUE1
+            JMP     ASLMEMCONTINUE1
     
-ADD2:
+ASLMEMADD2:
             ADDI    #1, D5
-            JMP     CONTINUE2
+            JMP     ASLMEMCONTINUE2
     
-DA:
+ASLMEMDA:
             MOVE.B  #'D', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
             MOVE.B  #' ', (A2)+
             JMP     FINISH
-AA:
+ASLMEMAA:
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
             MOVE.B  #' ', (A2)+
             JMP     FINISH
-DEREGISTERAA:
+ASLMEMDEREGISTERAA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
@@ -84,7 +86,7 @@ DEREGISTERAA:
             MOVE.B  #')', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     FINISH 
-POSTADDAA:
+ASLMEMPOSTADDAA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
@@ -93,7 +95,7 @@ POSTADDAA:
             MOVE.B  #'+', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     FINISH 
-PRESUBAA:
+ASLMEMPRESUBAA:
             MOVE.B  #'-', (A2)+
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
@@ -102,7 +104,7 @@ PRESUBAA:
             MOVE.B  #')', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     FINISH
-D16AA:
+ASLMEMD16AA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'d', (A2)+
             MOVE.B  #'1', (A2)+
@@ -114,7 +116,7 @@ D16AA:
             MOVE.B  #')', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     FINISH
-D8AXA:
+ASLMEMD8AXA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'d', (A2)+
             MOVE.B  #'1', (A2)+
@@ -130,77 +132,80 @@ D8AXA:
             MOVE.B  #' ', (A2)+
             JMP     FINISH
             
-WORDA:
+ASLMEMWORDA:
             MOVE.B  #'$', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
-LOOP4:
+ASLMEMLOOP4:
             MOVE.B  D5, D0
             AND     #$0F, D0
             CMPI    #9, D0
-            BLE     SINGLEDGT
+            BLE     ASLMEMSINGLEDGT
             SUB     #10, D0
             ADD     #'A', D0
             MOVE.L  D0, -(A7)
-CONTINUE4:  SUB     #1, D4
+ASLMEMCONTINUE4:  
+            SUB     #1, D4
             LSR     #4, D5
             CMPI    #0, D4
-            BEQ     NEXT3
-            JMP     LOOP4
+            BEQ     ASLMEMNEXT3
+            JMP     ASLMEMLOOP4
             
-SINGLEDGT:
+ASLMEMSINGLEDGT:
             ADD     #'0', D0
             MOVE.L  D0, -(A7)
-            JMP     CONTINUE4
+            JMP     ASLMEMCONTINUE4
 
-NEXT3:
+ASLMEMNEXT3:
             MOVE    #4, D4
-LOOP5:
+ASLMEMLOOP5:
             MOVE.L  (A7)+, D0
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
             BEQ     FINISH
-            JMP     LOOP5
+            JMP     ASLMEMLOOP5
             
-LONGA:
+ASLMEMLONGA:
             MOVE.B  #'$', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
-LOOP6:
+ASLMEMLOOP6:
             MOVE.B  D5, D0
             AND     #$0F, D0
             CMPI    #9, D0
-            BLE     SINGLEDGT2
+            BLE     ASLMEMSINGLEDGT2
             SUB     #10, D0
             ADD     #'A', D0
             MOVE.L  D0, -(A7)
-CONTINUE5:  SUB     #1, D4
+ASLMEMCONTINUE5:  
+            SUB     #1, D4
             LSR.L   #4, D5
             CMPI    #0, D4
-            BEQ     NEXT4
-            JMP     LOOP6
+            BEQ     ASLMEMNEXT4
+            JMP     ASLMEMLOOP6
             
-SINGLEDGT2:
+ASLMEMSINGLEDGT2:
             ADD     #'0', D0
             MOVE.L  D0, -(A7)
-            JMP     CONTINUE5
+            JMP     ASLMEMCONTINUE5
 
-NEXT4:
+ASLMEMNEXT4:
             MOVE    #8, D4
-LOOP7:
+ASLMEMLOOP7:
             MOVE.L  (A7)+, D0
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
             BEQ     FINISH
-            JMP     LOOP7
+            JMP     ASLMEMLOOP7
                         
 FINISH:     SIMHALT             ; halt simulator
 
 * Put variables and constants here
 
     END    START        ; last line of source
+
 
 
 

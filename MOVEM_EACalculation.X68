@@ -1,4 +1,3 @@
-*Also works for JSR and memory shifts for ASL, ASR, LSL, LSR, ROL, ROR
     ORG    $1000
 START:                 
 *Get first three bits (EA register)
@@ -8,30 +7,32 @@ START:
             MOVEA   #$1002, A4
             MOVEA   #$1000, A0
             MOVE    (A0), D2
-LOOP1:
+MOVEMLOOP1:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     ADD1
-CONTINUE1:  ROR     #1, D3
+            BCS     MOVEMADD1
+MOVEMCONTINUE1:  
+            ROR     #1, D3
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT1
-            JMP     LOOP1
+            BEQ     MOVEMNEXT1
+            JMP     MOVEMLOOP1
     
 *Get next three bits (EA mode)
-NEXT1:
+MOVEMNEXT1:
             ROL     #3, D3
             MOVE    #3, D4
-LOOP2:
+MOVEMLOOP2:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     ADD2
-CONTINUE2:  ROR     #1, D5
+            BCS     MOVEMADD2
+MOVEMCONTINUE2:  
+            ROR     #1, D5
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT2
-            JMP     LOOP2
-NEXT2:
+            BEQ     MOVEMNEXT2
+            JMP     MOVEMLOOP2
+MOVEMNEXT2:
 *Skip next four bits
             ROL     #3, D5
             LSR     #4, D2
@@ -39,181 +40,226 @@ NEXT2:
 *Get next bit (dr)
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     ADD3
-CONTINUE3:
+            BCS     MOVEMADD3
+MOVEMCONTINUE3:
 
 *Check dr
             MOVE    (A4)+, D6
             CMPI    #1, D7
-            BEQ     MEMTOREG
-            JMP     REGTOMEM
+            BEQ     MOVEMMEMTOREG
+            JMP     MOVEMREGTOMEM
                     
-MEMTOREG:
+MOVEMMEMTOREG:
             CMPI    #2, D5
-            BEQ     DEREGISTERAA
+            BEQ     MOVEMDEREGISTERAA
             CMPI    #3, D5
-            BEQ     POSTADDAA
+            BEQ     MOVEMPOSTADDAA
             CMPI    #5, D5
-            BEQ     D16AA
+            BEQ     MOVEMD16AA
             CMPI    #6, D5
-            BEQ     D8AXA
+            BEQ     MOVEMD8AXA
             CMPI    #7, D5
-            BEQ     WLD1
-CONTINUE4:
+            BEQ     MOVEMWLD1
+MOVEMCONTINUE4:
 *Print out registers
             LSR     #1, D6
-            BCS     MEM1
-BACK1:      LSR     #1, D6
-            BCS     MEM2
-BACK2:      LSR     #1, D6
-            BCS     MEM3
-BACK3:      LSR     #1, D6
-            BCS     MEM4
-BACK4:      LSR     #1, D6
-            BCS     MEM5
-BACK5:      LSR     #1, D6
-            BCS     MEM6
-BACK6:      LSR     #1, D6
-            BCS     MEM7
-BACK7:      LSR     #1, D6
-            BCS     MEM8
-BACK8:      LSR     #1, D6
-            BCS     MEM9
-BACK9:      LSR     #1, D6
-            BCS     MEM10
-BACK10:     LSR     #1, D6
-            BCS     MEM11
-BACK11:     LSR     #1, D6
-            BCS     MEM12
-BACK12:     LSR     #1, D6
-            BCS     MEM13
-BACK13:     LSR     #1, D6
-            BCS     MEM14
-BACK14:     LSR     #1, D6
-            BCS     MEM15
-BACK15:     LSR     #1, D6
-            BCS     MEM16
-BACK16:
+            BCS     MOVEMMEM1
+MOVEMBACK1: 
+            LSR     #1, D6
+            BCS     MOVEMMEM2
+MOVEMBACK2:      
+            LSR     #1, D6
+            BCS     MOVEMMEM3
+MOVEMBACK3:      
+            LSR     #1, D6
+            BCS     MOVEMMEM4
+MOVEMBACK4:      
+            LSR     #1, D6
+            BCS     MOVEMMEM5
+MOVEMBACK5:      
+            LSR     #1, D6
+            BCS     MOVEMMEM6
+MOVEMBACK6:      
+            LSR     #1, D6
+            BCS     MOVEMMEM7
+MOVEMBACK7:      
+            LSR     #1, D6
+            BCS     MOVEMMEM8
+MOVEMBACK8:      
+            LSR     #1, D6
+            BCS     MOVEMMEM9
+MOVEMBACK9:      
+            LSR     #1, D6
+            BCS     MOVEMMEM10
+MOVEMBACK10:     
+            LSR     #1, D6
+            BCS     MOVEMMEM11
+MOVEMBACK11:     
+            LSR     #1, D6
+            BCS     MOVEMMEM12
+MOVEMBACK12:     
+            LSR     #1, D6
+            BCS     MOVEMMEM13
+MOVEMBACK13:     
+            LSR     #1, D6
+            BCS     MOVEMMEM14
+MOVEMBACK14:     
+            LSR     #1, D6
+            BCS     MOVEMMEM15
+MOVEMBACK15:     
+            LSR     #1, D6
+            BCS     MOVEMMEM16
+MOVEMBACK16:
             JMP     FINISH
             
-REGTOMEM:
+MOVEMREGTOMEM:
 *Print out registers
             CMPI    #4, D5
-            BEQ     REVERSEMEM
+            BEQ     MOVEMREVERSEMEM
             LSR     #1, D6
-            BCS     MEM17
-BACK17:     LSR     #1, D6
-            BCS     MEM18
-BACK18:     LSR     #1, D6
-            BCS     MEM19
-BACK19:     LSR     #1, D6
-            BCS     MEM20
-BACK20:     LSR     #1, D6
-            BCS     MEM21
-BACK21:     LSR     #1, D6
-            BCS     MEM22
-BACK22:     LSR     #1, D6
-            BCS     MEM23
-BACK23:     LSR     #1, D6
-            BCS     MEM24
-BACK24:     LSR     #1, D6
-            BCS     MEM25
-BACK25:     LSR     #1, D6
-            BCS     MEM26
-BACK26:     LSR     #1, D6
-            BCS     MEM27
-BACK27:     LSR     #1, D6
-            BCS     MEM28
-BACK28:     LSR     #1, D6
-            BCS     MEM29
-BACK29:     LSR     #1, D6
-            BCS     MEM30
-BACK30:     LSR     #1, D6
-            BCS     MEM31
-BACK31:     LSR     #1, D6
-            BCS     MEM32
-BACK32:
-            JMP     CONTINUE5
+            BCS     MOVEMMEM17
+MOVEMBACK17:     
+            LSR     #1, D6
+            BCS     MOVEMMEM18
+MOVEMBACK18:     
+            LSR     #1, D6
+            BCS     MOVEMMEM19
+MOVEMBACK19:     
+            LSR     #1, D6
+            BCS     MOVEMMEM20
+MOVEMBACK20:     
+            LSR     #1, D6
+            BCS     MOVEMMEM21
+MOVEMBACK21:     
+            LSR     #1, D6
+            BCS     MOVEMMEM22
+MOVEMBACK22:     
+            LSR     #1, D6
+            BCS     MOVEMMEM23
+MOVEMBACK23:     
+            LSR     #1, D6
+            BCS     MOVEMMEM24
+MOVEMBACK24:     
+            LSR     #1, D6
+            BCS     MOVEMMEM25
+MOVEMBACK25:     
+            LSR     #1, D6
+            BCS     MOVEMMEM26
+MOVEMBACK26:     
+            LSR     #1, D6
+            BCS     MOVEMMEM27
+MOVEMBACK27:     
+            LSR     #1, D6
+            BCS     MOVEMMEM28
+MOVEMBACK28:     
+            LSR     #1, D6
+            BCS     MOVEMMEM29
+MOVEMBACK29:     
+            LSR     #1, D6
+            BCS     MOVEMMEM30
+MOVEMBACK30:     
+            LSR     #1, D6
+            BCS     MOVEMMEM31
+MOVEMBACK31:     
+            LSR     #1, D6
+            BCS     MOVEMMEM32
+MOVEMBACK32:
+            JMP     MOVEMCONTINUE5
           
-REVERSEMEM:     
+MOVEMREVERSEMEM:     
             LSR     #1, D6
-            BCS     MEM33
-BACK33:     LSR     #1, D6
-            BCS     MEM34
-BACK34:     LSR     #1, D6
-            BCS     MEM35
-BACK35:     LSR     #1, D6
-            BCS     MEM36
-BACK36:     LSR     #1, D6
-            BCS     MEM37
-BACK37:     LSR     #1, D6
-            BCS     MEM38
-BACK38:     LSR     #1, D6
-            BCS     MEM39
-BACK39:     LSR     #1, D6
-            BCS     MEM40
-BACK40:     LSR     #1, D6
-            BCS     MEM41
-BACK41:     LSR     #1, D6
-            BCS     MEM42
-BACK42:     LSR     #1, D6
-            BCS     MEM43
-BACK43:     LSR     #1, D6
-            BCS     MEM44
-BACK44:     LSR     #1, D6
-            BCS     MEM45
-BACK45:     LSR     #1, D6
-            BCS     MEM46
-BACK46:     LSR     #1, D6
-            BCS     MEM47
-BACK47:     LSR     #1, D6
-            BCS     MEM48
+            BCS     MOVEMMEM33
+MOVEMBACK33:     
+            LSR     #1, D6
+            BCS     MOVEMMEM34
+MOVEMBACK34:     
+            LSR     #1, D6
+            BCS     MOVEMMEM35
+MOVEMBACK35:     
+            LSR     #1, D6
+            BCS     MOVEMMEM36
+MOVEMBACK36:     
+            LSR     #1, D6
+            BCS     MOVEMMEM37
+MOVEMBACK37:     
+            LSR     #1, D6
+            BCS     MOVEMMEM38
+MOVEMBACK38:     
+            LSR     #1, D6
+            BCS     MOVEMMEM39
+MOVEMBACK39:     
+            LSR     #1, D6
+            BCS     MOVEMMEM40
+MOVEMBACK40:     
+            LSR     #1, D6
+            BCS     MOVEMMEM41
+MOVEMBACK41:     
+            LSR     #1, D6
+            BCS     MOVEMMEM42
+MOVEMBACK42:     
+            LSR     #1, D6
+            BCS     MOVEMMEM43
+MOVEMBACK43:     
+            LSR     #1, D6
+            BCS     MOVEMMEM44
+MOVEMBACK44:     
+            LSR     #1, D6
+            BCS     MOVEMMEM45
+MOVEMBACK45:     
+            LSR     #1, D6
+            BCS     MOVEMMEM46
+MOVEMBACK46:     
+            LSR     #1, D6
+            BCS     MOVEMMEM47
+MOVEMBACK47:     
+            LSR     #1, D6
+            BCS     MOVEMMEM48
             
-CONTINUE5:
+MOVEMCONTINUE5:
             CMPI    #2, D5
-            BEQ     DEREGISTERAB
+            BEQ     MOVEMDEREGISTERAB
             CMPI    #4, D5
-            BEQ     PRESUBAB
+            BEQ     MOVEMPRESUBAB
             CMPI    #5, D5
-            BEQ     D16AB
+            BEQ     MOVEMD16AB
             CMPI    #6, D5
-            BEQ     D8AXB
+            BEQ     MOVEMD8AXB
             CMPI    #7, D5
-            BEQ     WLD2
+            BEQ     MOVEMWLD2
    
 *Check register 
-WLD1:
+MOVEMWLD1:
             CMPI    #0, D3
-            BEQ     WORDA
+            BEQ     MOVEMWORDA
             CMPI    #1, D3
-            BEQ     LONGA
+            BEQ     MOVEMLONGA
             
-WLD2:
+MOVEMWLD2:
             CMPI    #0, D3
-            BEQ     WORDB
+            BEQ     MOVEMWORDB
             CMPI    #1, D3
-            BEQ     LONGB
+            BEQ     MOVEMLONGB
             
-ADD1:
+MOVEMADD1:
             ADDI    #1, D3
-            JMP     CONTINUE1
+            JMP     MOVEMCONTINUE1
     
-ADD2:
+MOVEMADD2:
             ADDI    #1, D5
-            JMP     CONTINUE2
-ADD3:
+            JMP     MOVEMCONTINUE2
+MOVEMADD3:
             ADDI    #1, D7
-            JMP     CONTINUE3
+            JMP     MOVEMCONTINUE3
     
-DEREGISTERAA:
+MOVEMDEREGISTERAA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     CONTINUE4 
-POSTADDAA:
+            JMP     MOVEMCONTINUE4 
+MOVEMPOSTADDAA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
@@ -221,8 +267,8 @@ POSTADDAA:
             MOVE.B  #')', (A2)+
             MOVE.B  #'+', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     CONTINUE4 
-D16AA:
+            JMP     MOVEMCONTINUE4 
+MOVEMD16AA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'d', (A2)+
             MOVE.B  #'1', (A2)+
@@ -233,8 +279,8 @@ D16AA:
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     CONTINUE4
-D8AXA:
+            JMP     MOVEMCONTINUE4
+MOVEMD8AXA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'d', (A2)+
             MOVE.B  #'1', (A2)+
@@ -248,88 +294,90 @@ D8AXA:
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     CONTINUE4
+            JMP     MOVEMCONTINUE4
             
-WORDA:
+MOVEMWORDA:
             MOVE.B  #'$', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
-LOOP3:
+MOVEMLOOP3:
             MOVE.B  D5, D0
             AND     #$0F, D0
             CMPI    #9, D0
-            BLE     SINGLEDGT
+            BLE     MOVEMSINGLEDGT
             SUB     #10, D0
             ADD     #'A', D0
             MOVE.L  D0, -(A7)
-CONTINUE6:  SUB     #1, D4
+MOVEMCONTINUE6:  
+            SUB     #1, D4
             LSR     #4, D5
             CMPI    #0, D4
-            BEQ     NEXT3
-            JMP     LOOP3
+            BEQ     MOVEMNEXT3
+            JMP     MOVEMLOOP3
             
-SINGLEDGT:
+MOVEMSINGLEDGT:
             ADD     #'0', D0
             MOVE.L  D0, -(A7)
-            JMP     CONTINUE6
+            JMP     MOVEMCONTINUE6
 
-NEXT3:
+MOVEMNEXT3:
             MOVE    #4, D4
-LOOP4:
+MOVEMLOOP4:
             MOVE.L  (A7)+, D0
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT4
-            JMP     LOOP4
-NEXT4:            
+            BEQ     MOVEMNEXT4
+            JMP     MOVEMLOOP4
+MOVEMNEXT4:            
             MOVE.B  #' ', (A2)+
-            JMP     CONTINUE4
+            JMP     MOVEMCONTINUE4
             
-LONGA:
+MOVEMLONGA:
             MOVE.B  #'$', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
-LOOP5:
+MOVEMLOOP5:
             MOVE.B  D5, D0
             AND     #$0F, D0
             CMPI    #9, D0
-            BLE     SINGLEDGT2
+            BLE     MOVEMSINGLEDGT2
             SUB     #10, D0
             ADD     #'A', D0
             MOVE.L  D0, -(A7)
-CONTINUE7:  SUB     #1, D4
+MOVEMCONTINUE7:  
+            SUB     #1, D4
             LSR.L   #4, D5
             CMPI    #0, D4
-            BEQ     NEXT5
-            JMP     LOOP5
+            BEQ     MOVEMNEXT5
+            JMP     MOVEMLOOP5
             
-SINGLEDGT2:
+MOVEMSINGLEDGT2:
             ADD     #'0', D0
             MOVE.L  D0, -(A7)
-            JMP     CONTINUE7
+            JMP     MOVEMCONTINUE7
 
-NEXT5:
+MOVEMNEXT5:
             MOVE    #8, D4
-LOOP6:
+MOVEMLOOP6:
             MOVE.L  (A7)+, D0
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT6
-            JMP     LOOP6
-NEXT6:            
+            BEQ     MOVEMNEXT6
+            JMP     MOVEMLOOP6
+MOVEMNEXT6:            
             MOVE.B  #' ', (A2)+
-            JMP     CONTINUE4
+            JMP     MOVEMCONTINUE4
             
-DEREGISTERAB:
+MOVEMDEREGISTERAB:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
             JMP     FINISH
-PRESUBAB:
+MOVEMPRESUBAB:
             MOVE.B  #'-', (A2)+
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
@@ -337,7 +385,7 @@ PRESUBAB:
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
             JMP     FINISH
-D16AB:
+MOVEMD16AB:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'d', (A2)+
             MOVE.B  #'1', (A2)+
@@ -348,7 +396,7 @@ D16AB:
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
             JMP     FINISH
-D8AXB:
+MOVEMD8AXB:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'d', (A2)+
             MOVE.B  #'1', (A2)+
@@ -363,367 +411,370 @@ D8AXB:
             MOVE.B  #')', (A2)+
             JMP     FINISH
             
-WORDB:
+MOVEMWORDB:
             MOVE.B  #'$', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
-LOOP7:
+MOVEMLOOP7:
             MOVE.B  D5, D0
             AND     #$0F, D0
             CMPI    #9, D0
-            BLE     SINGLEDGT4
+            BLE     MOVEMSINGLEDGT4
             SUB     #10, D0
             ADD     #'A', D0
             MOVE.L  D0, -(A7)
-CONTINUE9:  SUB     #1, D4
+MOVEMCONTINUE9:  
+            SUB     #1, D4
             LSR     #4, D5
             CMPI    #0, D4
-            BEQ     NEXT7
-            JMP     LOOP7
+            BEQ     MOVEMNEXT7
+            JMP     MOVEMLOOP7
             
-SINGLEDGT4:
+MOVEMSINGLEDGT4:
             ADD     #'0', D0
             MOVE.L  D0, -(A7)
-            JMP     CONTINUE6
+            JMP     MOVEMCONTINUE6
 
-NEXT7:
+MOVEMNEXT7:
             MOVE    #4, D4
-LOOP8:
+MOVEMLOOP8:
             MOVE.L  (A7)+, D0
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT8
-            JMP     LOOP8
-NEXT8:            
+            BEQ     MOVEMNEXT8
+            JMP     MOVEMLOOP8
+MOVEMNEXT8:            
             JMP     FINISH
             
-LONGB:
+MOVEMLONGB:
             MOVE.B  #'$', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
-LOOP9:
+MOVEMLOOP9:
             MOVE.B  D5, D0
             AND     #$0F, D0
             CMPI    #9, D0
-            BLE     SINGLEDGT5
+            BLE     MOVEMSINGLEDGT5
             SUB     #10, D0
             ADD     #'A', D0
             MOVE.L  D0, -(A7)
-CONTINUE10: SUB     #1, D4
+MOVEMCONTINUE10: 
+            SUB     #1, D4
             LSR.L   #4, D5
             CMPI    #0, D4
-            BEQ     NEXT9
-            JMP     LOOP9
+            BEQ     MOVEMNEXT9
+            JMP     MOVEMLOOP9
             
-SINGLEDGT5:
+MOVEMSINGLEDGT5:
             ADD     #'0', D0
             MOVE.L  D0, -(A7)
-            JMP     CONTINUE10
+            JMP     MOVEMCONTINUE10
 
-NEXT9:
+MOVEMNEXT9:
             MOVE    #8, D4
-LOOP10:
+MOVEMLOOP10:
             MOVE.L  (A7)+, D0
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT10
-            JMP     LOOP10
-NEXT10:            
+            BEQ     MOVEMNEXT10
+            JMP     MOVEMLOOP10
+MOVEMNEXT10:            
             JMP     FINISH
 
             
-MEM1:
+MOVEMMEM1:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'0', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK1
+            JMP     MOVEMBACK1
             
-MEM2:
+MOVEMMEM2:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'1', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK2
+            JMP     MOVEMBACK2
             
-MEM3:
+MOVEMMEM3:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'2', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK3
+            JMP     MOVEMBACK3
 
-MEM4:
+MOVEMMEM4:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'3', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK3
+            JMP     MOVEMBACK3
 
-MEM5:
+MOVEMMEM5:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'4', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK5
+            JMP     MOVEMBACK5
 
-MEM6:
+MOVEMMEM6:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'5', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK6
+            JMP     MOVEMBACK6
 
-MEM7:
+MOVEMMEM7:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'6', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK7
+            JMP     MOVEMBACK7
 
-MEM8:
+MOVEMMEM8:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'7', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK8
+            JMP     MOVEMBACK8
 
-MEM9:
+MOVEMMEM9:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'0', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK9
+            JMP     MOVEMBACK9
 
-MEM10:
+MOVEMMEM10:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'1', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK10
+            JMP     MOVEMBACK10
             
-MEM11:
+MOVEMMEM11:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'2', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK11
+            JMP     MOVEMBACK11
 
-MEM12:
+MOVEMMEM12:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'3', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK12
+            JMP     MOVEMBACK12
            
-MEM13:
+MOVEMMEM13:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'4', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK13
+            JMP     MOVEMBACK13
             
-MEM14:
+MOVEMMEM14:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'5', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK14
+            JMP     MOVEMBACK14
             
-MEM15:
+MOVEMMEM15:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'6', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK15
-MEM16:
+            JMP     MOVEMBACK15
+MOVEMMEM16:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'7', (A2)+
-            JMP     BACK16         
+            JMP     MOVEMBACK16         
 
-MEM17:
+MOVEMMEM17:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'0', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK17
+            JMP     MOVEMBACK17
             
-MEM18:
+MOVEMMEM18:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'1', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK18
+            JMP     MOVEMBACK18
             
-MEM19:
+MOVEMMEM19:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'2', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK19
+            JMP     MOVEMBACK19
 
-MEM20:
+MOVEMMEM20:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'3', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK20
+            JMP     MOVEMBACK20
 
-MEM21:
+MOVEMMEM21:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'4', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK21
+            JMP     MOVEMBACK21
 
-MEM22:
+MOVEMMEM22:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'5', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK22
+            JMP     MOVEMBACK22
 
-MEM23:
+MOVEMMEM23:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'6', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK23
+            JMP     MOVEMBACK23
 
-MEM24:
+MOVEMMEM24:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'7', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK24
+            JMP     MOVEMBACK24
 
-MEM25:
+MOVEMMEM25:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'0', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK25
+            JMP     MOVEMBACK25
 
-MEM26:
+MOVEMMEM26:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'1', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK26
+            JMP     MOVEMBACK26
             
-MEM27:
+MOVEMMEM27:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'2', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK27
+            JMP     MOVEMBACK27
 
-MEM28:
+MOVEMMEM28:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'3', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK28
+            JMP     MOVEMBACK28
            
-MEM29:
+MOVEMMEM29:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'4', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK29
+            JMP     MOVEMBACK29
             
-MEM30:
+MOVEMMEM30:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'5', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK30
+            JMP     MOVEMBACK30
             
-MEM31:
+MOVEMMEM31:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'6', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK31
-MEM32:
+            JMP     MOVEMBACK31
+MOVEMMEM32:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'7', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK32
+            JMP     MOVEMBACK32
             
-MEM33:
+MOVEMMEM33:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'7', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK33
+            JMP     MOVEMBACK33
             
-MEM34:
+MOVEMMEM34:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'6', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK34
+            JMP     MOVEMBACK34
             
-MEM35:
+MOVEMMEM35:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'5', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK35
+            JMP     MOVEMBACK35
 
-MEM36:
+MOVEMMEM36:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'4', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK36
+            JMP     MOVEMBACK36
 
-MEM37:
+MOVEMMEM37:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'3', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK37
+            JMP     MOVEMBACK37
 
-MEM38:
+MOVEMMEM38:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'2', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK38
+            JMP     MOVEMBACK38
 
-MEM39:
+MOVEMMEM39:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'1', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK39
+            JMP     MOVEMBACK39
 
-MEM40:
+MOVEMMEM40:
             MOVE.B  #'A', (A2)+
             MOVE.B  #'0', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK40
+            JMP     MOVEMBACK40
 
-MEM41:
+MOVEMMEM41:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'7', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK41
+            JMP     MOVEMBACK41
 
-MEM42:
+MOVEMMEM42:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'6', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK42
+            JMP     MOVEMBACK42
             
-MEM43:
+MOVEMMEM43:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'5', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK43
+            JMP     MOVEMBACK43
 
-MEM44:
+MOVEMMEM44:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'4', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK44
+            JMP     MOVEMBACK44
            
-MEM45:
+MOVEMMEM45:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'3', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK45
+            JMP     MOVEMBACK45
             
-MEM46:
+MOVEMMEM46:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'2', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK46
+            JMP     MOVEMBACK46
             
-MEM47:
+MOVEMMEM47:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'1', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     BACK47
-MEM48:
+            JMP     MOVEMBACK47
+MOVEMMEM48:
             MOVE.B  #'D', (A2)+
             MOVE.B  #'0', (A2)+
             MOVE.B  #' ', (A2)+
-            JMP     CONTINUE5
+            JMP     MOVEMCONTINUE5
             
-
 FINISH:     SIMHALT             ; halt simulator
 
 * Put variables and constants here
 
     END    START        ; last line of source
+
+
 
 
 

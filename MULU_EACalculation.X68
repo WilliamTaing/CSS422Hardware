@@ -7,125 +7,129 @@ START:
             MOVE    #3, D4
             MOVEA   #$1000, A0
             MOVE    (A0), D2
-LOOP1:
+MULULOOP1:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     ADD1
-CONTINUE1:  ROR     #1, D3
+            BCS     MULUADD1
+MULUCONTINUE1:  
+            ROR     #1, D3
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT1
-            JMP     LOOP1
+            BEQ     MULUNEXT1
+            JMP     MULULOOP1
     
 *Get next three bits (source mode)
-NEXT1:
+MULUNEXT1:
             ROL     #3, D3
             MOVE    #3, D4
-LOOP2:
+MULULOOP2:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     ADD2
-CONTINUE2:  ROR     #1, D5
+            BCS     MULUADD2
+MULUCONTINUE2:  
+            ROR     #1, D5
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT2
-            JMP     LOOP2
+            BEQ     MULUNEXT2
+            JMP     MULULOOP2
             
             
 *Skip three bits   
-NEXT2:
+MULUNEXT2:
             ROL     #3, D5
             LSR     #3, D2
 
 *Get next three bits (destination register)
             MOVE    #3, D4
-LOOP3:
+MULULOOP3:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     ADD3
-CONTINUE3:  ROR     #1, D6
+            BCS     MULUADD3
+MULUCONTINUE3:  
+            ROR     #1, D6
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT3
-            JMP     LOOP3
+            BEQ     MULUNEXT3
+            JMP     MULULOOP3
             
 *Print address
-NEXT3:    
+MULUNEXT3:    
             CMPI    #0, D5
-            BEQ     DA
+            BEQ     MULUDA
             CMPI    #1, D5
-            BEQ     AA
+            BEQ     MULUAA
             CMPI    #2, D5
-            BEQ     DEREGISTERAA
+            BEQ     MULUDEREGISTERAA
             CMPI    #3, D5
-            BEQ     POSTADDAA
+            BEQ     MULUPOSTADDAA
             CMPI    #4, D5
-            BEQ     PRESUBAA
+            BEQ     MULUPRESUBAA
             CMPI    #5, D5
-            BEQ     D16AA
+            BEQ     MULUD16AA
             CMPI    #6, D5
-            BEQ     D8AXA
+            BEQ     MULUD8AXA
             CMPI    #7, D5
-            BEQ     WLD1
-CONTINUE5:  MOVE.B  #' ', (A2)+
+            BEQ     MULUWLD1
+MULUCONTINUE5:  
+            MOVE.B  #' ', (A2)+
             MOVE.B  #'D', (A2)+
             ADD     #'0', D6
             MOVE.B  D6, (A2)+
             JMP     FINISH
             
-WLD1:
+MULUWLD1:
             CMPI    #0, D3
-            BEQ     WORDA
+            BEQ     MULUWORDA
             CMPI    #1, D3
-            BEQ     LONGA
+            BEQ     MULULONGA
             CMPI    #4, D3
-            BEQ     DATAA
+            BEQ     MULUDATAA
             
-ADD1:
+MULUADD1:
             ADDI    #1, D3
-            JMP     CONTINUE1
+            JMP     MULUCONTINUE1
     
-ADD2:
+MULUADD2:
             ADDI    #1, D5
-            JMP     CONTINUE2
-ADD3:
+            JMP     MULUCONTINUE2
+MULUADD3:
             ADDI    #1, D6
-            JMP     CONTINUE3
+            JMP     MULUCONTINUE3
     
-DA:
+MULUDA:
             MOVE.B  #'D', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
-            JMP     CONTINUE5
-AA:
+            JMP     MULUCONTINUE5
+MULUAA:
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
-            JMP     CONTINUE5
-DEREGISTERAA:
+            JMP     MULUCONTINUE5
+MULUDEREGISTERAA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
-            JMP     CONTINUE5
-POSTADDAA:
+            JMP     MULUCONTINUE5
+MULUPOSTADDAA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
             MOVE.B  #'+', (A2)+
-            JMP     CONTINUE5
-PRESUBAA:
+            JMP     MULUCONTINUE5
+MULUPRESUBAA:
             MOVE.B  #'-', (A2)+
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
-            JMP     CONTINUE5
-D16AA:
+            JMP     MULUCONTINUE5
+MULUD16AA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'d', (A2)+
             MOVE.B  #'1', (A2)+
@@ -135,8 +139,8 @@ D16AA:
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
-            JMP     CONTINUE5
-D8AXA:
+            JMP     MULUCONTINUE5
+MULUD8AXA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'d', (A2)+
             MOVE.B  #'1', (A2)+
@@ -149,124 +153,125 @@ D8AXA:
             MOVE.B  #'X', (A2)+
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
-            JMP     CONTINUE5
+            JMP     MULUCONTINUE5
                    
-WORDA:
+MULUWORDA:
             MOVE.B  #'$', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
-LOOP4:
+MULULOOP4:
             MOVE.B  D5, D0
             AND     #$0F, D0
             CMPI    #9, D0
-            BLE     SINGLEDGT
+            BLE     MULUSINGLEDGT
             SUB     #10, D0
             ADD     #'A', D0
             MOVE.L  D0, -(A7)
-CONTINUE6:  SUB     #1, D4
+MULUCONTINUE6:  
+            SUB     #1, D4
             LSR     #4, D5
             CMPI    #0, D4
-            BEQ     NEXT4
-            JMP     LOOP4
+            BEQ     MULUNEXT4
+            JMP     MULULOOP4
             
-SINGLEDGT:
+MULUSINGLEDGT:
             ADD     #'0', D0
             MOVE.L  D0, -(A7)
-            JMP     CONTINUE6
+            JMP     MULUCONTINUE6
 
-NEXT4:
+MULUNEXT4:
             MOVE    #4, D4
-LOOP5:
+MULULOOP5:
             MOVE.L  (A7)+, D0
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     CONTINUE5
-            JMP     LOOP5
+            BEQ     MULUCONTINUE5
+            JMP     MULULOOP5
             
-LONGA:
+MULULONGA:
             MOVE.B  #'$', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
-LOOP6:
+MULULOOP6:
             MOVE.B  D5, D0
             AND     #$0F, D0
             CMPI    #9, D0
-            BLE     SINGLEDGT2
+            BLE     MULUSINGLEDGT2
             SUB     #10, D0
             ADD     #'A', D0
             MOVE.L  D0, -(A7)
-CONTINUE7:  SUB     #1, D4
+MULUCONTINUE7:  
+            SUB     #1, D4
             LSR.L   #4, D5
             CMPI    #0, D4
-            BEQ     NEXT5
-            JMP     LOOP6
+            BEQ     MULUNEXT5
+            JMP     MULULOOP6
             
-SINGLEDGT2:
+MULUSINGLEDGT2:
             ADD     #'0', D0
             MOVE.L  D0, -(A7)
-            JMP     CONTINUE7
+            JMP     MULUCONTINUE7
 
-NEXT5:
+MULUNEXT5:
             MOVE    #8, D4
-LOOP7:
+MULULOOP7:
             MOVE.L  (A7)+, D0
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     CONTINUE5
-            JMP     LOOP7
+            BEQ     MULUCONTINUE5
+            JMP     MULULOOP7
             
-DATAA:
+MULUDATAA:
             MOVE.B  #'#', (A2)+
             CMPI    #1, D1
-            BEQ     WORDA
+            BEQ     MULUWORDA
             CMPI    #2, D1
-            BEQ     LONGA
+            BEQ     MULULONGA
 *Otherwise, Byte operation
             MOVE.B  #'$', (A2)+
             MOVE    (A4), D5
             MOVE    #2, D4
-BYTELOOP1:
+MULUBYTELOOP1:
             MOVE.B  D5, D0
             AND     #$0F, D0
             CMPI    #9, D0
-            BLE     SINGLEDGT3
+            BLE     MULUSINGLEDGT3
             SUB     #10, D0
             ADD     #'A', D0
             MOVE.L  D0, -(A7)
-BYTECONTINUE1:
+MULUBYTECONTINUE1:
             SUB     #1, D4
             LSR     #4, D5
             CMPI    #0, D4
-            BEQ     NEXT6
-            JMP     BYTELOOP1
+            BEQ     MULUNEXT6
+            JMP     MULUBYTELOOP1
             
-SINGLEDGT3:
+MULUSINGLEDGT3:
             ADD     #'0', D0
             MOVE.L  D0, -(A7)
-            JMP     BYTECONTINUE1
+            JMP     MULUBYTECONTINUE1
 
-NEXT6:
+MULUNEXT6:
             MOVE    #2, D4
-BYTELOOP2:
+MULUBYTELOOP2:
             MOVE.L  (A7)+, D0
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     BYTENEXT1
-            JMP     BYTELOOP2
+            BEQ     MULUBYTENEXT1
+            JMP     MULUBYTELOOP2
             
-BYTENEXT1:
-            JMP     CONTINUE5
-
-
+MULUBYTENEXT1:
+            JMP     MULUCONTINUE5
             
 FINISH:     SIMHALT             ; halt simulator
 
 * Put variables and constants here
 
     END    START        ; last line of source
+
 
 
 

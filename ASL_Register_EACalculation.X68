@@ -7,46 +7,48 @@ START:
             MOVE    #3, D4
             MOVEA   #$1000, A0
             MOVE    (A0), D2
-LOOP1:
+ASLREGLOOP1:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     ADD1
-CONTINUE1:  ROR     #1, D3
+            BCS     ASLREGADD1
+ASLREGCONTINUE1:
+            ROR     #1, D3
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT1
-            JMP     LOOP1
+            BEQ     ASLREGNEXT1
+            JMP     ASLREGLOOP1
     
 *Skip next two bits
-NEXT1:
+ASLREGNEXT1:
             ROL     #3, D3
             LSR     #2, D2
             
 *Get next bit (i/r)
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     ADD2           
+            BCS     ASLREGADD2           
             
 *Skip three bits 
-NEXT2:
+ASLREGNEXT2:
             LSR     #3, D2
 
 *Get next three bits (count/register)
             MOVE    #3, D4
-LOOP2:
+ASLREGLOOP2:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     ADD3
-CONTINUE3:  ROR     #1, D6
+            BCS     ASLREGADD3
+ASLREGCONTINUE3:  
+            ROR     #1, D6
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     NEXT3
-            JMP     LOOP2
+            BEQ     ASLREGNEXT3
+            JMP     ASLREGLOOP2
             
 *Decide if we are set to count or register
-NEXT3:    
+ASLREGNEXT3:    
             CMP     #0, D5
-            BEQ     COUNT
+            BEQ     ASLREGCOUNT
 *Register goes here:
             MOVE.B  #'D', (A2)+
             ADD     #'0', D6
@@ -57,7 +59,7 @@ NEXT3:
             MOVE.B  D3, (A2)+
             JMP     FINISH       
             
-COUNT:
+ASLREGCOUNT:
             MOVE.B  #'#', (A2)+
             ADD     #'0', D6
             MOVE.B  D6, (A2)+
@@ -67,22 +69,23 @@ COUNT:
             MOVE.B  D3, (A2)+
             JMP     FINISH
             
-ADD1:
+ASLREGADD1:
             ADDI    #1, D3
-            JMP     CONTINUE1
+            JMP     ASLREGCONTINUE1
     
-ADD2:
+ASLREGADD2:
             ADDI    #1, D5
-            JMP     NEXT2
-ADD3:
+            JMP     ASLREGNEXT2
+ASLREGADD3:
             ADDI    #1, D6
-            JMP     CONTINUE3    
+            JMP     ASLREGCONTINUE3    
             
 FINISH:     SIMHALT             ; halt simulator
 
 * Put variables and constants here
 
     END    START        ; last line of source
+
 
 
 
