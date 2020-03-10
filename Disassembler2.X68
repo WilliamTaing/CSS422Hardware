@@ -6271,7 +6271,7 @@ EXTADD2:
 
 EA_TRAP:                 
 *Get first four bits (vector)
-            MOVE    #3, D4
+            MOVE    #4, D4
 TRAPLOOP1:
             CMPI    #1, D2
             LSR     #1, D2
@@ -6285,10 +6285,40 @@ TRAPCONTINUE1:
     
 *Print out EA
 TRAPNEXT1:
+            ROL     #4, D3
             MOVE.B  #'#', (A2)+
-            ADD     #0, D3
-            MOVE    D3, (A2)+
-            JMP     EA_FINISH
+            MOVE.B  #'$', (A2)+
+            MOVE    #4, D4
+TRAPLOOP2:
+            MOVE.B  D3, D0
+            AND     #$0F, D0
+            CMPI    #9, D0
+            BLE     TRAPSINGLEDGT
+            SUB     #10, D0
+            ADD     #'A', D0
+            MOVE.L  D0, -(A7)
+TRAPCONTINUE2: 
+            SUB     #1, D4
+            LSR.L   #4, D3
+            CMPI    #0, D4
+            BEQ     TRAPNEXT2
+            JMP     TRAPLOOP2
+            
+TRAPSINGLEDGT:
+            ADD     #'0', D0
+            MOVE.L  D0, -(A7)
+            JMP     TRAPCONTINUE2
+
+TRAPNEXT2:
+            MOVE    #4, D4
+TRAPLOOP3:
+            MOVE.L  (A7)+, D0
+            MOVE.B  D0, (A2)+   
+            SUBI    #1, D4
+            CMPI    #0, D4
+            BEQ     EA_FINISH
+            JMP     TRAPLOOP3
+
 
 TRAPADD1:
             ADDI    #1, D3
@@ -6864,8 +6894,8 @@ ORCONTINUE5:
             
 ORNEXT6:    ;If the format is Dn, <ea> -> <ea>
             MOVE.B  #'D', (A2)+
-            ADD     #'0', D7
-            MOVE.B  D7, (A2)+
+            ADD     #'0', D3
+            MOVE.B  D3, (A2)+
             MOVE.B  #' ', (A2)+
             CMPI    #0, D5
             BEQ     ORDB
@@ -6973,7 +7003,7 @@ ORD8AXA:
             
 ORWORDA:
             MOVE.B  #'$', (A2)+
-            MOVE    (A4)+, D5
+            MOVE    (A4), D5
             MOVE    #4, D4
 ORLOOP5:
             MOVE.B  D5, D0
@@ -7010,7 +7040,7 @@ ORNEXT8:
             
 ORLONGA:
             MOVE.B  #'$', (A2)+
-            MOVE.L  (A4)+, D5
+            MOVE.L  (A4), D5
             MOVE    #8, D4
 ORLOOP7:
             MOVE.B  D5, D0
@@ -7054,7 +7084,7 @@ ORDATAA:
             BEQ     ORLONGA
 *Otherwise, Byte operation
             MOVE.B  #'$', (A2)+
-            MOVE    (A4)+, D5
+            MOVE    (A4), D5
             MOVE    #2, D4
 ORBYTELOOP1:
             MOVE.B  D5, D0
@@ -7094,23 +7124,23 @@ ORBYTENEXT1:
             
 ORDB:
             MOVE.B  #'D', (A2)+
-            ADD     #'0', D3
-            MOVE.B  D3, (A2)+
+            ADD     #'0', D7
+            MOVE.B  D7, (A2)+
             JMP     EA_FINISH
 ORAB:
             JMP     E_INPUT
 ORDEREGISTERAB:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
-            ADD     #'0', D3
-            MOVE.B  D3, (A2)+
+            ADD     #'0', D7
+            MOVE.B  D7, (A2)+
             MOVE.B  #')', (A2)+
             JMP     EA_FINISH 
 ORPOSTADDAB:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
-            ADD     #'0', D3
-            MOVE.B  D3, (A2)+
+            ADD     #'0', D7
+            MOVE.B  D7, (A2)+
             MOVE.B  #')', (A2)+
             MOVE.B  #'+', (A2)+
             JMP     EA_FINISH 
@@ -7118,8 +7148,8 @@ ORPRESUBAB:
             MOVE.B  #'-', (A2)+
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
-            ADD     #'0', D3
-            MOVE.B  D3, (A2)+
+            ADD     #'0', D7
+            MOVE.B  D7, (A2)+
             MOVE.B  #')', (A2)+
             JMP     EA_FINISH
 ORD16AB:
@@ -7129,8 +7159,8 @@ ORD16AB:
             MOVE.B  #'6', (A2)+
             MOVE.B  #',', (A2)+
             MOVE.B  #'A', (A2)+
-            ADD     #'0', D3
-            MOVE.B  D3, (A2)+
+            ADD     #'0', D7
+            MOVE.B  D7, (A2)+
             MOVE.B  #')', (A2)+
             JMP     EA_FINISH
 ORD8AXB:
@@ -7140,17 +7170,17 @@ ORD8AXB:
             MOVE.B  #'6', (A2)+
             MOVE.B  #',', (A2)+
             MOVE.B  #'A', (A2)+
-            ADD     #'0', D3
-            MOVE.B  D3, (A2)+
+            ADD     #'0', D7
+            MOVE.B  D7, (A2)+
             MOVE.B  #',', (A2)+
             MOVE.B  #'X', (A2)+
-            MOVE.B  D3, (A2)+
+            MOVE.B  D7, (A2)+
             MOVE.B  #')', (A2)+
             JMP     EA_FINISH
                         
 ORWORDB:
             MOVE.B  #'$', (A2)+
-            MOVE    (A4)+, D5
+            MOVE    (A4), D5
             MOVE    #4, D4
 ORLOOP9:
             MOVE.B  D5, D0
@@ -7186,7 +7216,7 @@ ORNEXT13:
             
 ORLONGB:
             MOVE.B  #'$', (A2)+
-            MOVE.L  (A4)+, D5
+            MOVE.L  (A4), D5
             MOVE    #8, D4
 ORLOOP11:
             MOVE.B  D5, D0
@@ -7229,7 +7259,7 @@ ORDATAB:
             BEQ     ORLONGB
 *Otherwise, Byte operation
             MOVE.B  #'$', (A2)+
-            MOVE    (A4)+, D5
+            MOVE    (A4), D5
             MOVE    #2, D4
 ORBYTELOOP3:
             MOVE.B  D5, D0
@@ -7263,6 +7293,7 @@ ORBYTELOOP4:
             
 ORBYTENEXT2:
             JMP     EA_FINISH
+
 *-----------------------------------------------------------
 EA_FINISH:
             RTS
@@ -7368,6 +7399,8 @@ MSG_BUFFER  DC.B    'Buffer Paused. Press enter to continue.', CR, LF, 0
 BUFFER_SIZE EQU     64          ;Size of buffer
 BUFFER      DS.B    BUFFER_SIZE ;Buffer 64 Chars long
     END    START        ; last line of source
+
+
 
 
 
