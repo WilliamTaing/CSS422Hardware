@@ -6,14 +6,52 @@
 *-----------------------------------------------------------
     ORG    $1000
 START:                  ; first instruction of program
-    MOVEQ   #0, D4
-    
-    
+    ;TEST CODE
+    LSL    (A1)
+    LSL     D3, D4      ;Check OR Later
+    LSR     D2, D1
+    ASL     D1, D2
+    ASR     D5, D7
+    ROL     D4, D6
+    ROR     D7, D6
+    OR      #1, D6
+    OR      D2, D3
+    MOVEA.L   D3, A5
+    MOVEA.L   (A5)+, A6
+    ROL     #1, D0
+    JSR     Q
+    JMP     Q1
+    MULU    #1, D3
+    DIVU    #11, D3
+    DIVS    #5, D3
+    MULS    #6, D3
+    MOVEM.W D2, $400
+    ADDI.B  #15, D3
+    SUBI.W  #15, D3
+    ADDI.L  #18, D4
+    ADDQ    #3, D3
+    ADDQ    #4, D4
+    ADDQ    #5, D6
+    ADDQ    #3, D3
+    ADDQ    #5, D6
+    ADDQ    #3, D3
+    ADDQ    #4, D4
+    ADDQ    #5, D6
+    ADDQ    #3, D3
+    ADDQ    #4, D4
+    ADDQ    #5, D6
+    ADDQ    #3, D3
+    ADDQ    #4, D4
+    ADDQ    #5, D6
     ADD.B   D3, D4
+Q:
+    RTS
+Q1:
     
-
     CLR.B   D7      ;TEST INSTRUCTIONS
     LEA     STACK, A7   ;stack and stack pointer (A7) at $A0000
+    
+    ;END TEST CODE
 
 * Put program code here
 
@@ -163,6 +201,7 @@ PROG_READER:
     LEA     EA_STACK, A3 ;Sets A3 to save data before jumping to EA functions
     
     MOVE.L  A4, D3       ;Prepare to read address
+    CLR     D6
     MOVE.B  #8, D6       ;Amount of digits to read for ITOA
     MOVE.B  #36, (A2)+   ;Begin memory address with $ symbol
     JSR     ITOA         ;Calculate memory address
@@ -265,6 +304,18 @@ code0001:
     MOVE.B  #'E', (A2)+
     MOVE.B  #'.', (A2)+
     MOVE.B  #'B', (A2)+
+    MOVE.B  #SPC, (A2)+     ;Space to separate OP from EA
+    MOVE.B  D5, (A3)+       ;Save data to stack (not used by calculator)
+    ;Clear all registers
+    CLR     D0
+    CLR     D1
+    CLR     D3
+    CLR     D4
+    CLR     D5
+    CLR     D6
+    CLR     D7
+    JSR     EA_MOVE
+    MOVE.B  -(A3), D5       ;Load current print line from stack
     BRA PRINT_LINE
 code0010:
     MOVE.B  #'M', (A2)+
@@ -274,7 +325,7 @@ code0010:
     JSR    OP_MOVE          ;Determine wheter MOVEA or MOVE
     MOVE.B  #'.', (A2)+
     MOVE.B  #'L', (A2)+
-    CMPI    #1, D4
+    CMPI    #1, D4          ;If MOVEA D4 is set to 1
     BEQ     EA_MOVEA_CALL
     MOVE.B  #SPC, (A2)+     ;Space to separate OP from EA
     MOVE.B  D5, (A3)+       ;Save data to stack (not used by calculator)
@@ -310,9 +361,22 @@ code0011:
     MOVE.B  #'V', (A2)+
     MOVE.B  #'E', (A2)+
     JSR     OP_MOVE         ;Determine wheter MOVEA or MOVE
+    CMPI    #1, D4          ;If MOVEA D4 is set to 1
+    BEQ     EA_MOVEA_CALL
     MOVE.B  #'.', (A2)+
     MOVE.B  #'W', (A2)+
-    
+    MOVE.B  #SPC, (A2)+     ;Space to separate OP from EA
+    MOVE.B  D5, (A3)+       ;Save data to stack (not used by calculator)
+    ;Clear all registers
+    CLR     D0
+    CLR     D1
+    CLR     D3
+    CLR     D4
+    CLR     D5
+    CLR     D6
+    CLR     D7
+    JSR     EA_MOVE
+    MOVE.B  -(A3), D5
     BRA PRINT_LINE
 code0100:
     LEA     code0100_TABLE, A0  ;Load Table into A0
@@ -369,7 +433,7 @@ code0100_TABLE:
 
 
 code0100_RESUME:
-    JSR BITSIZE6
+    
     BRA PRINT_LINE
 code0101:
     MOVE.W  D2, D3
@@ -401,6 +465,8 @@ code0110_RESUME:
     CLR     D7
     JSR     EA_BCC
     MOVE.B  -(A3), D5
+    MOVE.W  (A4)+, D3       ;Increment A4 forward since function does not do that
+    CLR     D3
     BRA PRINT_LINE
  
 *========== code0110 TABLE ==========
@@ -462,6 +528,55 @@ code1101:
 code1110:
     ;Test for ASd/ROd/LSd
     MOVE.W  D2, D3
+    ANDI    #$00C0, D3      ;Isolate bits 7/8
+    ROR.W   #6, D3
+    CMPI    #3, D3
+    BEQ     code1110_SINGLE ;If size bits (7/8) is set to 3 jump to analyzer
+    ;ELSE STAY AND CHECK FOR ROTATION                  
+    MOVE.W  D2, D3
+    ANDI    #$0018, D3      ;Get bits 4 and 5
+    ROR     #3, D3
+    CMPI    #0, D3
+    BEQ     OP_AS_TEST
+    CMPI    #1, D3
+    BEQ     OP_LS_TEST
+    CMPI    #3, D3
+    BEQ     OP_RO_TEST
+    BRA     OP_UNSUPPORTED
+    
+code1110_SINGLE:
+    ;When Size is set to 11
+    MOVE.W  D2, D3
+    ANDI    #$0F00, D3      ;These bits determine rotation
+    ROL     #8, D3
+    CMPI    #0, D3
+    BEQ     OP_ASR_SINGLE
+    CMPI    #1, D3
+    BEQ     OP_ASL_SINGLE
+    CMPI    #2, D3
+    BEQ     OP_LSR_SINGLE
+    CMPI    #3, D3
+    BEQ     OP_LSL_SINGLE
+    CMPI    #4, D3
+    BEQ     OP_ROR_SINGLE
+    CMPI    #5, D3
+    BEQ     OP_ROL_SINGLE
+    BRA     OP_UNSUPPORTED
+    
+OP_AS_IMMEDIATE:
+    MOVE.W  D2, D3
+    ANDI    #$0018, D3      ;Get bits 4 and 5
+    ROR     #3, D3
+    CMPI    #0, D3
+    BEQ     OP_AS_TEST
+    CMPI    #1, D3
+    BEQ     OP_LS_TEST
+    CMPI    #3, D3
+    BEQ     OP_RO_TEST
+    BRA     OP_UNSUPPORTED
+    
+OP_AS_DATA:
+    MOVE.W  D2, D3
     ANDI    #$0F00, D3
     ROL.W   #8, D3
     CMPI    #0, D3  ;0 = ASR
@@ -477,24 +592,14 @@ code1110:
     CMPI    #0, D3  ;7 = ROL
     BEQ     OP_ROL
     ;Test 2
-    MOVE.B  #1, D6      ;I use this D6 Flag to check if I need to check for size
-    MOVE.W  D2, D3
-    ANDI    #$001F, D3
-    LSL.W   #3, D3
-    CMPI    #0, D3
-    BEQ     OP_AS_TEST
-    CMPI    #1, D3
-    BEQ     OP_LS_TEST
-    CMPI    #3, D3
-    BEQ     OP_RO_TEST
+    
     
 code1110_RESUME:
-    MOVE.W  D2, D3
-    
+    ;After determining Operation, Direction, and size.
+    MOVE.W  D2, D3      ;Now we determine whether immediate or register call through
     ANDI    #$0020, D3  ;Isolate bit 6
     ROR.W   #5, D3      ;Isolate bit 6
     CMPI    #0, D3      ;Determine whether memory or register operation
-    
     BEQ     OP_MEM_CALL
     MOVE.B  #SPC, (A2)+     ;Space to separate OP from EA
     MOVE.B  D5, (A3)+       ;Save data to stack (not used by calculator)
@@ -507,6 +612,20 @@ code1110_RESUME:
     CLR     D6
     CLR     D7
     JSR     EA_ASL_REG
+    MOVE.B  -(A3), D5
+    BRA     code1110_END
+code1110_RESUME_SINGLE:
+    MOVE.B  #SPC, (A2)+     ;Space to separate OP from EA
+    MOVE.B  D5, (A3)+       ;Save data to stack (not used by calculator)
+    ;Clear all registers
+    CLR     D0
+    CLR     D1
+    CLR     D3
+    CLR     D4
+    CLR     D5
+    CLR     D6
+    CLR     D7
+    JSR     EA_ASL_MEM
     MOVE.B  -(A3), D5
 code1110_END:
     BRA     PRINT_LINE
@@ -594,6 +713,7 @@ OP_CLR:
     MOVE.B  #'C', (A2)+
     MOVE.B  #'L', (A2)+
     MOVE.B  #'R', (A2)+
+    JSR     BITSIZE6
     MOVE.B  #SPC, (A2)+     ;Space to separate OP from EA
     MOVE.B  D5, (A3)+       ;Save data to stack (not used by calculator)
     ;Clear all registers
@@ -667,7 +787,7 @@ OP_JSR:
     CLR     D5
     CLR     D6
     CLR     D7
-    JSR     EA_CLR
+    JSR     EA_JSR
     MOVE.B  -(A3), D5
     BRA     PRINT_LINE
     
@@ -675,7 +795,18 @@ OP_JMP:
     MOVE.B  #'J', (A2)+
     MOVE.B  #'M', (A2)+
     MOVE.B  #'P', (A2)+
-
+    MOVE.B  #SPC, (A2)+     ;Space to separate OP from EA
+    MOVE.B  D5, (A3)+       ;Save data to stack (not used by calculator)
+    ;Clear all registers
+    CLR     D0
+    CLR     D1
+    CLR     D3
+    CLR     D4
+    CLR     D5
+    CLR     D6
+    CLR     D7
+    JSR     EA_JSR
+    MOVE.B  -(A3), D5
     BRA     PRINT_LINE
 
 OP_LEA:
@@ -683,7 +814,18 @@ OP_LEA:
     MOVE.B  #'L', (A2)+
     MOVE.B  #'E', (A2)+
     MOVE.B  #'A', (A2)+
-    
+    MOVE.B  #SPC, (A2)+     ;Space to separate OP from EA
+    MOVE.B  D5, (A3)+       ;Save data to stack (not used by calculator)
+    ;Clear all registers
+    CLR     D0
+    CLR     D1
+    CLR     D3
+    CLR     D4
+    CLR     D5
+    CLR     D6
+    CLR     D7
+    JSR     EA_LEA
+    MOVE.B  -(A3), D5
     BRA     PRINT_LINE
     
 OP_ADDQ:
@@ -730,7 +872,7 @@ OP_MOVEQ:
     CLR     D5
     CLR     D6
     CLR     D7
-    JSR     EA_ASL_REG
+    JSR     EA_MOVEQ
     MOVE.B  -(A3), D5
     BRA     PRINT_LINE
 
@@ -758,7 +900,7 @@ OP_DIVU:
     CLR     D5
     CLR     D6
     CLR     D7
-    JSR     EA_MULU
+    JSR     EA_MULU_WORD
     MOVE.B  -(A3), D5
     BRA     PRINT_LINE
     
@@ -777,7 +919,7 @@ OP_DIVS:
     CLR     D5
     CLR     D6
     CLR     D7
-    JSR     EA_MULU
+    JSR     EA_MULU_WORD
     MOVE.B  -(A3), D5
     BRA     PRINT_LINE
 
@@ -855,7 +997,7 @@ OP_MULU:
     CLR     D5
     CLR     D6
     CLR     D7
-    JSR     EA_MULU
+    JSR     EA_MULU_WORD
     MOVE.B  -(A3), D5
     BRA     PRINT_LINE
     
@@ -874,7 +1016,7 @@ OP_MULS:
     CLR     D5
     CLR     D6
     CLR     D7
-    JSR     EA_MULU
+    JSR     EA_MULU_WORD
     MOVE.B  -(A3), D5
     BRA     PRINT_LINE
 
@@ -943,22 +1085,29 @@ OP_AS_TEST:
     CMPI    #1, D3
     BEQ     OP_ASL
     BRA     OP_ASR
-    
 OP_ASR:
     MOVE.B  #'A', (A2)+
     MOVE.B  #'S', (A2)+
     MOVE.B  #'R', (A2)+
-    CMPI    #1, D6          ;D6 is set to 1 if we need to check for size
     JSR     BITSIZE6
-    BRA     code1110_RESUME
-    
+    BRA     code1110_RESUME 
+OP_ASR_SINGLE:
+    MOVE.B  #'A', (A2)+
+    MOVE.B  #'S', (A2)+
+    MOVE.B  #'R', (A2)+
+    BRA     code1110_RESUME_SINGLE
+
 OP_ASL:
     MOVE.B  #'A', (A2)+
     MOVE.B  #'S', (A2)+
     MOVE.B  #'L', (A2)+
-    CMPI    #1, D6          ;D6 is set to 1 if we need to check for size
     JSR     BITSIZE6
     BRA     code1110_RESUME
+OP_ASL_SINGLE:
+    MOVE.B  #'A', (A2)+
+    MOVE.B  #'S', (A2)+
+    MOVE.B  #'L', (A2)+
+    BRA     code1110_RESUME_SINGLE
 
 OP_LS_TEST:
     MOVE.W  D2, D3
@@ -972,17 +1121,24 @@ OP_LSR:
     MOVE.B  #'L', (A2)+
     MOVE.B  #'S', (A2)+
     MOVE.B  #'R', (A2)+
-    CMPI    #1, D6          ;D6 is set to 1 if we need to check for size
     JSR     BITSIZE6
     BRA     code1110_RESUME
-    
+OP_LSR_SINGLE:
+    MOVE.B  #'L', (A2)+
+    MOVE.B  #'S', (A2)+
+    MOVE.B  #'R', (A2)+
+    BRA     code1110_RESUME_SINGLE
 OP_LSL:
     MOVE.B  #'L', (A2)+
     MOVE.B  #'S', (A2)+
     MOVE.B  #'L', (A2)+
-    CMPI    #1, D6          ;D6 is set to 1 if we need to check for size
     JSR     BITSIZE6
     BRA     code1110_RESUME
+OP_LSL_SINGLE:
+    MOVE.B  #'L', (A2)+
+    MOVE.B  #'S', (A2)+
+    MOVE.B  #'L', (A2)+
+    BRA     code1110_RESUME_SINGLE
     
 OP_RO_TEST:
     MOVE.W  D2, D3
@@ -991,22 +1147,28 @@ OP_RO_TEST:
     CMPI    #1, D3
     BEQ     OP_ROL
     BRA     OP_ROR
-
 OP_ROR:
     MOVE.B  #'R', (A2)+
     MOVE.B  #'O', (A2)+
     MOVE.B  #'R', (A2)+
-    CMPI    #1, D6          ;D6 is set to 1 if we need to check for size
     JSR     BITSIZE6
     BRA     code1110_RESUME
-
+OP_ROR_SINGLE:
+    MOVE.B  #'R', (A2)+
+    MOVE.B  #'O', (A2)+
+    MOVE.B  #'R', (A2)+
+    BRA     code1110_RESUME_SINGLE
 OP_ROL:
     MOVE.B  #'R', (A2)+
     MOVE.B  #'O', (A2)+
     MOVE.B  #'L', (A2)+
-    CMPI    #1, D6          ;D6 is set to 1 if we need to check for size
     JSR     BITSIZE6
     BRA     code1110_RESUME
+OP_ROL_SINGLE:
+    MOVE.B  #'R', (A2)+
+    MOVE.B  #'O', (A2)+
+    MOVE.B  #'L', (A2)+
+    BRA     code1110_RESUME_SINGLE
     
 OP_BRA:
     MOVE.B  #'B', (A2)+
@@ -1190,9 +1352,8 @@ BITSIZE_LONG:
     RTS                 ;Return to wherever you came from
 *___________________________________________________________
 *~~~~~~~~~~~~~~~~~~~EA CALCULATIONS~~~~~~~~~~~~~~~~~~~~~~~~~
-EA_ADD:                 
+EA_ADD:                 ;Also works for SUB and CMPI
 *Get first three bits (source register)
-*ADD/SUB/AND/OR
             MOVE    #3, D4
 ADDLOOP1:
             CMPI    #1, D2
@@ -1356,6 +1517,10 @@ ADDDA:
             MOVE.B  D3, (A2)+
             JMP     ADDCONTINUE5
 ADDAA:
+            CMPI    #0, D6
+            BEQ     E_INPUT
+            CMPI    #4, D6
+            BEQ     E_INPUT
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
@@ -1444,7 +1609,7 @@ ADDLOOP6:
             JMP     ADDLOOP6
 ADDNEXT8:            
             MOVE.B  #' ', (A2)+
-            JMP     ADDNEXT5
+            JMP     ADDCONTINUE5
             
 ADDLONGA:
             MOVE.B  #'$', (A2)+
@@ -1481,7 +1646,7 @@ ADDLOOP8:
             JMP     ADDLOOP8
 ADDNEXT10:            
             MOVE.B  #' ', (A2)+
-            JMP     ADDNEXT5
+            JMP     ADDCONTINUE5
 
             
 ADDDATAA:
@@ -1526,20 +1691,14 @@ ADDBYTELOOP2:
             
 ADDBYTENEXT1:
             MOVE.B  #' ', (A2)+
-            JMP     ADDNEXT5
+            JMP     ADDCONTINUE5
 
 
             
 ADDDB:
-            MOVE.B  #'D', (A2)+
-            ADD     #'0', D3
-            MOVE.B  D3, (A2)+
-            JMP     EA_FINISH
+            JMP     E_INPUT
 ADDAB:
-            MOVE.B  #'A', (A2)+
-            ADD     #'0', D3
-            MOVE.B  D3, (A2)+
-            JMP     EA_FINISH
+            JMP     E_INPUT
 ADDDEREGISTERAB:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
@@ -1663,46 +1822,7 @@ ADDEXT15:
 
             
 ADDDATAB:
-            MOVE.B  #'#', (A2)+
-            CMPI    #1, D1
-            BEQ     ADDWORDA
-            CMPI    #2, D1
-            BEQ     ADDLONGA
-*Otherwise, Byte operation
-            MOVE.B  #'$', (A2)+
-            MOVE    (A4), D5
-            MOVE    #2, D4
-ADDBYTELOOP3:
-            MOVE.B  D5, D0
-            AND     #$0F, D0
-            CMPI    #9, D0
-            BLE     ADDSINGLEDGT6
-            SUB     #10, D0
-            ADD     #'A', D0
-            MOVE.L  D0, -(A7)
-ADDBYTECONTINUE2:
-            SUB     #1, D4
-            LSR     #4, D5
-            CMPI    #0, D4
-            BEQ     ADDNEXT16
-            JMP     ADDBYTELOOP3
-            
-ADDSINGLEDGT6:
-            ADD     #'0', D0
-            MOVE.L  D0, -(A7)
-            JMP     ADDBYTECONTINUE2
-
-ADDNEXT16:
-            MOVE    #2, D4
-ADDBYTELOOP4:
-            MOVE.L  (A7)+, D0
-            MOVE.B  D0, (A2)+   
-            SUBI    #1, D4
-            CMPI    #0, D4
-            BEQ     ADDBYTENEXT2
-            JMP     ADDBYTELOOP4
-ADDBYTENEXT2:
-            JMP     EA_FINISH
+            JMP     E_INPUT
 
 *___________________________________________________________            
 EA_ADDA:                 
@@ -1742,7 +1862,7 @@ ADDANEXT2:
 ADDAOPLOOP:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     ADDAADD2
+            BCS     ADDAADD4
 ADDAOPCONTINUE:
             ROR     #1, D1
             SUBI    #1, D4
@@ -1752,6 +1872,7 @@ ADDAOPCONTINUE:
 
 ADDAOPNEXT:
 *Get next three bits (destination register)
+            ROL     #3, D1
             MOVE    #3, D4
 ADDALOOP3:
             CMPI    #1, D2
@@ -1766,6 +1887,7 @@ ADDACONTINUE3:
             
 *Print address
 ADDANEXT3:    
+            ROL     #3, D6
             CMPI    #0, D5
             BEQ     ADDADA
             CMPI    #1, D5
@@ -1945,11 +2067,8 @@ ADDANEXT7:
             JMP     ADDACONTINUE5
            
 ADDADATAA:
-            MOVE.B  #'#', (A2)+
-            CMPI    #3, D1
-            BEQ     ADDAWORDA
-            CMPI    #7, D1
-            BEQ     ADDALONGA
+            JMP     E_INPUT
+
 
 *___________________________________________________________
 EA_ADDI:                 
@@ -2292,7 +2411,7 @@ ADDINEXT8:
             JMP     EA_FINISH
 
 *___________________________________________________________
-EA_ADDQ:                 
+EA_ADDQ:      ;Also works for SUBQ           
 *Get first three bits (destination register)
             MOVE    #3, D4
 ADDQLOOP1:
@@ -2324,7 +2443,7 @@ ADDQCONTINUE2:
 *Get next two bits (size)
 ADDQNEXT2:
             ROL     #3, D5
-            MOVE    #3, D4
+            MOVE    #2, D4
 ADDQSIZELOOP:
             CMPI    #1, D2
             LSR     #1, D2
@@ -2338,6 +2457,7 @@ ADDQSIZECONTINUE:
             
 *Skip next bit
 ADDQNEXTSIZE:
+            ROL     #2, D1
             LSR     #1, D2
 
 *Get next three bits (data)
@@ -2406,6 +2526,8 @@ ADDQDA:
             MOVE.B  D3, (A2)+
             JMP     EA_FINISH
 ADDQAA:
+            CMPI    #0, D1
+            BEQ     E_INPUT
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
@@ -2531,47 +2653,9 @@ ADDQLOOP9:
             JMP     ADDQLOOP9
             
 ADDQDATAA:
-            MOVE.B  #'#', (A2)+
-            CMPI    #1, D1
-            BEQ     ADDQWORDA
-            CMPI    #2, D1
-            BEQ     ADDQLONGA
-*Otherwise, Byte operation
-            MOVE.B  #'$', (A2)+
-            MOVE    (A4), D5
-            MOVE    #2, D4
-ADDQBYTELOOP1:
-            MOVE.B  D5, D0
-            AND     #$0F, D0
-            CMPI    #9, D0
-            BLE     ADDQSINGLEDGT3
-            SUB     #10, D0
-            ADD     #'A', D0
-            MOVE.L  D0, -(A7)
-ADDQBYTECONTINUE1:
-            SUB     #1, D4
-            LSR     #4, D5
-            CMPI    #0, D4
-            BEQ     ADDQNEXT6
-            JMP     ADDQBYTELOOP1
-            
-ADDQSINGLEDGT3:
-            ADD     #'0', D0
-            MOVE.L  D0, -(A7)
-            JMP     ADDQBYTECONTINUE1
+            JMP     E_INPUT
 
-ADDQNEXT6:
-            MOVE    #2, D4
-ADDQBYTELOOP2:
-            MOVE.L  (A7)+, D0
-            MOVE.B  D0, (A2)+   
-            SUBI    #1, D4
-            CMPI    #0, D4
-            BEQ     ADDQBYTENEXT1
-            JMP     ADDQBYTELOOP2
-            
-ADDQBYTENEXT1:
-            JMP     EA_FINISH
+
 
 *___________________________________________________________
 EA_ASL_MEM:
@@ -2921,7 +3005,7 @@ BCCADD1:
             ADDI    #1, D3
             JMP     BCCCONTINUE1       
 *-----------------------------------------------------------
-EA_CLR:                 
+EA_CLR:                 ;Also works for NOT, 
 *Get first three bits (register)
             MOVE    #3, D4
 CLRLOOP1:
@@ -2963,7 +3047,7 @@ CLRCONTINUE3:
             SUBI    #1, D4
             CMPI    #0, D4
             BEQ     CLRNEXT3
-            JMP     CLRLOOP2
+            JMP     CLRLOOP3
 
 *Print out EA
 CLRNEXT3:
@@ -3010,11 +3094,7 @@ CLRDA:
             MOVE.B  #' ', (A2)+
             JMP     EA_FINISH
 CLRAA:
-            MOVE.B  #'A', (A2)+
-            ADD     #'0', D3
-            MOVE.B  D3, (A2)+
-            MOVE.B  #' ', (A2)+
-            JMP     EA_FINISH
+            JMP    E_INPUT
 CLRDEREGISTERAA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
@@ -3138,48 +3218,10 @@ CLRLOOP7:
             JMP     CLRLOOP7
             
 CLRDATAA:
-            MOVE.B  #'#', (A2)+
-            CMPI    #1, D1
-            BEQ     CLRWORDA
-            CMPI    #2, D1
-            BEQ     CLRLONGA
-*Otherwise, Byte operation
-            MOVE.B  #'$', (A2)+
-            MOVE    (A4), D5
-            MOVE    #2, D4
-CLRBYTELOOP1:
-            MOVE.B  D5, D0
-            AND     #$0F, D0
-            CMPI    #9, D0
-            BLE     CLRSINGLEDGT3
-            SUB     #10, D0
-            ADD     #'A', D0
-            MOVE.L  D0, -(A7)
-CLRBYTECONTINUE1:
-            SUB     #1, D4
-            LSR     #4, D5
-            CMPI    #0, D4
-            BEQ     CLRNEXT6
-            JMP     CLRBYTELOOP1
-            
-CLRSINGLEDGT3:
-            ADD     #'0', D0
-            MOVE.L  D0, -(A7)
-            JMP     CLRBYTECONTINUE1
+            JMP     E_INPUT    
 
-CLRNEXT6:
-            MOVE    #2, D4
-CLRBYTELOOP2:
-            MOVE.L  (A7)+, D0
-            MOVE.B  D0, (A2)+   
-            SUBI    #1, D4
-            CMPI    #0, D4
-            BEQ     CLRBYTENEXT1
-            JMP     CLRBYTELOOP2
-            
-CLRBYTENEXT1:
-            MOVE.B  #' ', (A2)+
-            JMP     CLRNEXT5
+
+
 *-----------------------------------------------------------
 EA_MOVE:                 
 *Get first three bits (source register)
@@ -3771,8 +3813,8 @@ MOVEASOURCE:
 *Print out destination address
 MOVEANEXT5:
             MOVE.B  #'A', (A2)+
-            ADD     #'0', D7
-            MOVE.B  D7, (A2)+
+            ADD     #'0', D6
+            MOVE.B  D6, (A2)+
             JMP     EA_FINISH
             
 MOVEAWLD1:
@@ -3981,7 +4023,9 @@ MOVEABYTELOOP2:
             
 MOVEABYTENEXT1:
             MOVE.B  #' ', (A2)+
-            JMP     MOVEANEXT5
+            JMP     MOVEANEXT5                 
+
+
 *-----------------------------------------------------------
 EA_MOVEM:                 
 *Get first three bits (EA register)
@@ -4277,7 +4321,7 @@ MOVEMD8AXA:
             
 MOVEMWORDA:
             MOVE.B  #'$', (A2)+
-            MOVE    (A4), D5
+            MOVE    (A4)+, D5
             MOVE    #4, D4
 MOVEMLOOP3:
             MOVE.B  D5, D0
@@ -4314,7 +4358,7 @@ MOVEMNEXT4:
             
 MOVEMLONGA:
             MOVE.B  #'$', (A2)+
-            MOVE.L  (A4), D5
+            MOVE.L  (A4)+, D5
             MOVE    #8, D4
 MOVEMLOOP5:
             MOVE.B  D5, D0
@@ -4392,7 +4436,7 @@ MOVEMD8AXB:
             
 MOVEMWORDB:
             MOVE.B  #'$', (A2)+
-            MOVE    (A4), D5
+            MOVE    (A4)+, D5
             MOVE    #4, D4
 MOVEMLOOP7:
             MOVE.B  D5, D0
@@ -4428,7 +4472,7 @@ MOVEMNEXT8:
             
 MOVEMLONGB:
             MOVE.B  #'$', (A2)+
-            MOVE.L  (A4), D5
+            MOVE.L  (A4)+, D5
             MOVE    #8, D4
 MOVEMLOOP9:
             MOVE.B  D5, D0
@@ -4828,136 +4872,130 @@ MOVEQADD2:
             ADDI    #1, D5
             JMP     MOVEQCONTINUE2     
 *-----------------------------------------------------------
-EA_MULU:                 
+EA_MULU_WORD:                 ;Also works for MULS, DIVS, DIVU (word)
 *Get first three bits (source register)
-            ADD.B   D0, D1
-            MOVEA   A1, A2
             MOVE    #3, D4
-            MOVEA   #$1000, A0
-            MOVE    (A0), D2
-MULULOOP1:
+MULUWORDLOOP1:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     MULUADD1
-MULUCONTINUE1:  
+            BCS     MULUWORDADD1
+MULUWORDCONTINUE1:  
             ROR     #1, D3
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     MULUNEXT1
-            JMP     MULULOOP1
+            BEQ     MULUWORDNEXT1
+            JMP     MULUWORDLOOP1
     
 *Get next three bits (source mode)
-MULUNEXT1:
+MULUWORDNEXT1:
             ROL     #3, D3
             MOVE    #3, D4
-MULULOOP2:
+MULUWORDLOOP2:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     MULUADD2
-MULUCONTINUE2:  
+            BCS     MULUWORDADD2
+MULUWORDCONTINUE2:  
             ROR     #1, D5
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     MULUNEXT2
-            JMP     MULULOOP2
+            BEQ     MULUWORDNEXT2
+            JMP     MULUWORDLOOP2
             
             
 *Skip three bits   
-MULUNEXT2:
+MULUWORDNEXT2:
             ROL     #3, D5
             LSR     #3, D2
 
 *Get next three bits (destination register)
             MOVE    #3, D4
-MULULOOP3:
+MULUWORDLOOP3:
             CMPI    #1, D2
             LSR     #1, D2
-            BCS     MULUADD3
-MULUCONTINUE3:  
+            BCS     MULUWORDADD3
+MULUWORDCONTINUE3:  
             ROR     #1, D6
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     MULUNEXT3
-            JMP     MULULOOP3
+            BEQ     MULUWORDNEXT3
+            JMP     MULUWORDLOOP3
             
 *Print address
-MULUNEXT3:    
+MULUWORDNEXT3:
+            ROL     #3, D6   
             CMPI    #0, D5
-            BEQ     MULUDA
+            BEQ     MULUWORDDA
             CMPI    #1, D5
-            BEQ     MULUAA
+            BEQ     MULUWORDAA
             CMPI    #2, D5
-            BEQ     MULUDEREGISTERAA
+            BEQ     MULUWORDDEREGISTERAA
             CMPI    #3, D5
-            BEQ     MULUPOSTADDAA
+            BEQ     MULUWORDPOSTADDAA
             CMPI    #4, D5
-            BEQ     MULUPRESUBAA
+            BEQ     MULUWORDPRESUBAA
             CMPI    #5, D5
-            BEQ     MULUD16AA
+            BEQ     MULUWORDD16AA
             CMPI    #6, D5
-            BEQ     MULUD8AXA
+            BEQ     MULUWORDD8AXA
             CMPI    #7, D5
-            BEQ     MULUWLD1
-MULUCONTINUE5:  
+            BEQ     MULUWORDWLD1
+MULUWORDCONTINUE5:  
             MOVE.B  #' ', (A2)+
             MOVE.B  #'D', (A2)+
             ADD     #'0', D6
             MOVE.B  D6, (A2)+
             JMP     EA_FINISH
             
-MULUWLD1:
+MULUWORDWLD1:
             CMPI    #0, D3
-            BEQ     MULUWORDA
+            BEQ     MULUWORDWORDA
             CMPI    #1, D3
-            BEQ     MULULONGA
+            BEQ     MULUWORDLONGA
             CMPI    #4, D3
-            BEQ     MULUDATAA
+            BEQ     MULUWORDDATAA
             
-MULUADD1:
+MULUWORDADD1:
             ADDI    #1, D3
-            JMP     MULUCONTINUE1
+            JMP     MULUWORDCONTINUE1
     
-MULUADD2:
+MULUWORDADD2:
             ADDI    #1, D5
-            JMP     MULUCONTINUE2
-MULUADD3:
+            JMP     MULUWORDCONTINUE2
+MULUWORDADD3:
             ADDI    #1, D6
-            JMP     MULUCONTINUE3
+            JMP     MULUWORDCONTINUE3
     
-MULUDA:
+MULUWORDDA:
             MOVE.B  #'D', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
-            JMP     MULUCONTINUE5
-MULUAA:
-            MOVE.B  #'A', (A2)+
-            ADD     #'0', D3
-            MOVE.B  D3, (A2)+
-            JMP     MULUCONTINUE5
-MULUDEREGISTERAA:
+            JMP     MULUWORDCONTINUE5
+MULUWORDAA:
+           JMP    E_INPUT
+MULUWORDDEREGISTERAA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
-            JMP     MULUCONTINUE5
-MULUPOSTADDAA:
+            JMP     MULUWORDCONTINUE5
+MULUWORDPOSTADDAA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
             MOVE.B  #'+', (A2)+
-            JMP     MULUCONTINUE5
-MULUPRESUBAA:
+            JMP     MULUWORDCONTINUE5
+MULUWORDPRESUBAA:
             MOVE.B  #'-', (A2)+
             MOVE.B  #'(', (A2)+
             MOVE.B  #'A', (A2)+
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
-            JMP     MULUCONTINUE5
-MULUD16AA:
+            JMP     MULUWORDCONTINUE5
+MULUWORDD16AA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'d', (A2)+
             MOVE.B  #'1', (A2)+
@@ -4967,8 +5005,8 @@ MULUD16AA:
             ADD     #'0', D3
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
-            JMP     MULUCONTINUE5
-MULUD8AXA:
+            JMP     MULUWORDCONTINUE5
+MULUWORDD8AXA:
             MOVE.B  #'(', (A2)+
             MOVE.B  #'d', (A2)+
             MOVE.B  #'1', (A2)+
@@ -4981,118 +5019,548 @@ MULUD8AXA:
             MOVE.B  #'X', (A2)+
             MOVE.B  D3, (A2)+
             MOVE.B  #')', (A2)+
-            JMP     MULUCONTINUE5
+            JMP     MULUWORDCONTINUE5
                    
-MULUWORDA:
+MULUWORDWORDA:
             MOVE.B  #'$', (A2)+
-            MOVE    (A4), D5
+            MOVE    (A4)+, D5
             MOVE    #4, D4
-MULULOOP4:
+MULUWORDLOOP4:
             MOVE.B  D5, D0
             AND     #$0F, D0
             CMPI    #9, D0
-            BLE     MULUSINGLEDGT
+            BLE     MULUWORDSINGLEDGT
             SUB     #10, D0
             ADD     #'A', D0
             MOVE.L  D0, -(A7)
-MULUCONTINUE6:  
+MULUWORDCONTINUE6:  
             SUB     #1, D4
             LSR     #4, D5
             CMPI    #0, D4
-            BEQ     MULUNEXT4
-            JMP     MULULOOP4
+            BEQ     MULUWORDNEXT4
+            JMP     MULUWORDLOOP4
             
-MULUSINGLEDGT:
+MULUWORDSINGLEDGT:
             ADD     #'0', D0
             MOVE.L  D0, -(A7)
-            JMP     MULUCONTINUE6
+            JMP     MULUWORDCONTINUE6
 
-MULUNEXT4:
+MULUWORDNEXT4:
             MOVE    #4, D4
-MULULOOP5:
+MULUWORDLOOP5:
             MOVE.L  (A7)+, D0
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     MULUCONTINUE5
-            JMP     MULULOOP5
+            BEQ     MULUWORDCONTINUE5
+            JMP     MULUWORDLOOP5
             
-MULULONGA:
+MULUWORDLONGA:
             MOVE.B  #'$', (A2)+
-            MOVE.L  (A4), D5
+            MOVE.L  (A4)+, D5
             MOVE    #8, D4
-MULULOOP6:
+MULUWORDLOOP6:
             MOVE.B  D5, D0
             AND     #$0F, D0
             CMPI    #9, D0
-            BLE     MULUSINGLEDGT2
+            BLE     MULUWORDSINGLEDGT2
             SUB     #10, D0
             ADD     #'A', D0
             MOVE.L  D0, -(A7)
-MULUCONTINUE7:  
+MULUWORDCONTINUE7:  
             SUB     #1, D4
             LSR.L   #4, D5
             CMPI    #0, D4
-            BEQ     MULUNEXT5
-            JMP     MULULOOP6
+            BEQ     MULUWORDNEXT5
+            JMP     MULUWORDLOOP6
             
-MULUSINGLEDGT2:
+MULUWORDSINGLEDGT2:
             ADD     #'0', D0
             MOVE.L  D0, -(A7)
-            JMP     MULUCONTINUE7
+            JMP     MULUWORDCONTINUE7
 
-MULUNEXT5:
+MULUWORDNEXT5:
             MOVE    #8, D4
-MULULOOP7:
+MULUWORDLOOP7:
             MOVE.L  (A7)+, D0
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     MULUCONTINUE5
-            JMP     MULULOOP7
+            BEQ     MULUWORDCONTINUE5
+            JMP     MULUWORDLOOP7
             
-MULUDATAA:
+MULUWORDDATAA:
             MOVE.B  #'#', (A2)+
             CMPI    #1, D1
-            BEQ     MULUWORDA
+            BEQ     MULUWORDWORDA
             CMPI    #2, D1
-            BEQ     MULULONGA
+            BEQ     MULUWORDLONGA
 *Otherwise, Byte operation
             MOVE.B  #'$', (A2)+
-            MOVE    (A4), D5
+            MOVE    (A4)+, D5
             MOVE    #2, D4
-MULUBYTELOOP1:
+MULUWORDBYTELOOP1:
             MOVE.B  D5, D0
             AND     #$0F, D0
             CMPI    #9, D0
-            BLE     MULUSINGLEDGT3
+            BLE     MULUWORDSINGLEDGT3
             SUB     #10, D0
             ADD     #'A', D0
             MOVE.L  D0, -(A7)
-MULUBYTECONTINUE1:
+MULUWORDBYTECONTINUE1:
             SUB     #1, D4
             LSR     #4, D5
             CMPI    #0, D4
-            BEQ     MULUNEXT6
-            JMP     MULUBYTELOOP1
+            BEQ     MULUWORDNEXT6
+            JMP     MULUWORDBYTELOOP1
             
-MULUSINGLEDGT3:
+MULUWORDSINGLEDGT3:
             ADD     #'0', D0
             MOVE.L  D0, -(A7)
-            JMP     MULUBYTECONTINUE1
+            JMP     MULUWORDBYTECONTINUE1
 
-MULUNEXT6:
+MULUWORDNEXT6:
             MOVE    #2, D4
-MULUBYTELOOP2:
+MULUWORDBYTELOOP2:
             MOVE.L  (A7)+, D0
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     MULUBYTENEXT1
-            JMP     MULUBYTELOOP2
+            BEQ     MULUWORDBYTENEXT1
+            JMP     MULUWORDBYTELOOP2
             
-MULUBYTENEXT1:
-            JMP     MULUCONTINUE5
+MULUWORDBYTENEXT1:
+            JMP     MULUWORDCONTINUE5
+
+EA_JSR:                 ;Also used for LEA, JMP
+*Get first three bits (register)
+            MOVE    #3, D4
+JSRLOOP1:
+            CMPI    #1, D2
+            LSR     #1, D2
+            BCS     JSRADD1
+JSRCONTINUE1:  
+            ROR     #1, D3
+            SUBI    #1, D4
+            CMPI    #0, D4
+            BEQ     JSRNEXT1
+            JMP     JSRLOOP1
+    
+*Get next three bits (mode)
+JSRNEXT1:
+            ROL     #3, D3
+            MOVE    #3, D4
+JSRLOOP2:
+            CMPI    #1, D2
+            LSR     #1, D2
+            BCS     JSRADD2
+JSRCONTINUE2:  
+            ROR     #1, D5
+            SUBI    #1, D4
+            CMPI    #0, D4
+            BEQ     JSRNEXT2
+            JMP     JSRLOOP2
+      
+*Get next two bits (size)      
+JSRNEXT2:
+            ROL     #3, D5
+            MOVE    #2, D4
+JSRLOOP3:
+            CMPI    #1, D2
+            LSR     #1, D2
+            BCS     JSRADD3
+JSRCONTINUE3:  
+            ROR     #1, D1
+            SUBI    #1, D4
+            CMPI    #0, D4
+            BEQ     JSRNEXT3
+            JMP     JSRLOOP3
+
+*Print out EA
+JSRNEXT3:
+            CMPI    #0, D5
+            BEQ     JSRDA
+            CMPI    #1, D5
+            BEQ     JSRAA
+            CMPI    #2, D5
+            BEQ     JSRDEREGISTERAA
+            CMPI    #3, D5
+            BEQ     JSRPOSTADDAA
+            CMPI    #4, D5
+            BEQ     JSRPRESUBAA
+            CMPI    #5, D5
+            BEQ     JSRD16AA
+            CMPI    #6, D5
+            BEQ     JSRD8AXA
+            CMPI    #7, D5
+            BEQ     JSRWLD1
+
+JSRWLD1:
+            CMPI    #0, D3
+            BEQ     JSRWORDA
+            CMPI    #1, D3
+            BEQ     JSRLONGA
+            CMPI    #4, D3
+            BEQ     JSRDATAA
+            
+JSRADD1:
+            ADDI    #1, D3
+            JMP     JSRCONTINUE1
+    
+JSRADD2:
+            ADDI    #1, D5
+            JMP     JSRCONTINUE2
+JSRADD3:
+            ADDI    #1, D6
+            JMP     JSRCONTINUE3
+    
+JSRDA:
+            JMP     E_INPUT
+JSRAA:
+            JMP     E_INPUT
+JSRDEREGISTERAA:
+            MOVE.B  #'(', (A2)+
+            MOVE.B  #'A', (A2)+
+            ADD     #'0', D3
+            MOVE.B  D3, (A2)+
+            MOVE.B  #')', (A2)+
+            MOVE.B  #' ', (A2)+
+            JMP     EA_FINISH 
+JSRPOSTADDAA:
+            JMP     E_INPUT
+JSRPRESUBAA:
+            JMP     E_INPUT
+JSRD16AA:
+            MOVE.B  #'(', (A2)+
+            MOVE.B  #'d', (A2)+
+            MOVE.B  #'1', (A2)+
+            MOVE.B  #'6', (A2)+
+            MOVE.B  #',', (A2)+
+            MOVE.B  #'A', (A2)+
+            ADD     #'0', D3
+            MOVE.B  D3, (A2)+
+            MOVE.B  #')', (A2)+
+            MOVE.B  #' ', (A2)+
+            JMP     EA_FINISH
+JSRD8AXA:
+            MOVE.B  #'(', (A2)+
+            MOVE.B  #'d', (A2)+
+            MOVE.B  #'1', (A2)+
+            MOVE.B  #'6', (A2)+
+            MOVE.B  #',', (A2)+
+            MOVE.B  #'A', (A2)+
+            ADD     #'0', D3
+            MOVE.B  D3, (A2)+
+            MOVE.B  #',', (A2)+
+            MOVE.B  #'X', (A2)+
+            MOVE.B  D3, (A2)+
+            MOVE.B  #')', (A2)+
+            MOVE.B  #' ', (A2)+
+            JMP     EA_FINISH
+            
+JSRWORDA:
+            MOVE.B  #'$', (A2)+
+            MOVE    (A4)+, D5
+            MOVE    #4, D4
+JSRLOOP4:
+            MOVE.B  D5, D0
+            AND     #$0F, D0
+            CMPI    #9, D0
+            BLE     JSRSINGLEDGT
+            SUB     #10, D0
+            ADD     #'A', D0
+            MOVE.L  D0, -(A7)
+JSRCONTINUE4:  
+            SUB     #1, D4
+            LSR     #4, D5
+            CMPI    #0, D4
+            BEQ     JSRNEXT4
+            JMP     JSRLOOP4
+            
+JSRSINGLEDGT:
+            ADD     #'0', D0
+            MOVE.L  D0, -(A7)
+            JMP     JSRCONTINUE4
+
+JSRNEXT4:
+            MOVE    #4, D4
+JSRLOOP5:
+            MOVE.L  (A7)+, D0
+            MOVE.B  D0, (A2)+   
+            SUBI    #1, D4
+            CMPI    #0, D4
+            BEQ     EA_FINISH
+            JMP     JSRLOOP5
+            
+JSRLONGA:
+            MOVE.B  #'$', (A2)+
+            MOVE.L  (A4)+, D5
+            MOVE    #8, D4
+JSRLOOP6:
+            MOVE.B  D5, D0
+            AND     #$0F, D0
+            CMPI    #9, D0
+            BLE     JSRSINGLEDGT2
+            SUB     #10, D0
+            ADD     #'A', D0
+            MOVE.L  D0, -(A7)
+JSRCONTINUE5:  
+            SUB     #1, D4
+            LSR.L   #4, D5
+            CMPI    #0, D4
+            BEQ     JSRNEXT5
+            JMP     JSRLOOP6
+            
+JSRSINGLEDGT2:
+            ADD     #'0', D0
+            MOVE.L  D0, -(A7)
+            JMP     JSRCONTINUE5
+
+JSRNEXT5:
+            MOVE    #8, D4
+JSRLOOP7:
+            MOVE.L  (A7)+, D0
+            MOVE.B  D0, (A2)+   
+            SUBI    #1, D4
+            CMPI    #0, D4
+            BEQ     EA_FINISH
+            JMP     JSRLOOP7
+            
+JSRDATAA:
+            JMP     E_INPUT    
+
+EA_LEA:                 
+*Get first three bits (source register)
+            MOVE    #3, D4
+LEALOOP1:
+            CMPI    #1, D2
+            LSR     #1, D2
+            BCS     LEAADD1
+LEACONTINUE1:  
+            ROR     #1, D3
+            SUBI    #1, D4
+            CMPI    #0, D4
+            BEQ     LEANEXT1
+            JMP     LEALOOP1
+    
+*Get next three bits (source mode)
+LEANEXT1:
+            ROL     #3, D3
+            MOVE    #3, D4
+LEALOOP2:
+            CMPI    #1, D2
+            LSR     #1, D2
+            BCS     LEAADD2
+LEACONTINUE2:  
+            ROR     #1, D5
+            SUBI    #1, D4
+            CMPI    #0, D4
+            BEQ     LEANEXT2
+            JMP     LEALOOP2
+            
+*Skip next three bits (not needed)
+LEANEXT2:
+            ROL     #3, D5
+            LSR     #3, D2          
+*Get next three bits (destination register)
+            MOVE    #3, D4
+LEALOOP3:
+            CMPI    #1, D2
+            LSR     #1, D2
+            BCS     LEAADD3
+LEACONTINUE3:  
+            ROR     #1, D6
+            SUBI    #1, D4
+            CMPI    #0, D4
+            BEQ     LEANEXT3
+            JMP     LEALOOP3
+
+*Get next two bits (size)
+LEANEXT3:
+            ROL     #3, D6
+            MOVE    #2, D4
+LEALOOP4:
+            CMPI    #1, D2
+            LSR     #1, D2
+            BCS     LEAADD4
+LEACONTINUE4:  
+            ROR     #1, D1
+            SUBI    #1, D4
+            CMPI    #0, D4
+            BEQ     LEASOURCE
+            JMP     LEALOOP4
+            
+
+*Print out source address
+LEASOURCE:
+            CMPI    #0, D5
+            BEQ     LEADA
+            CMPI    #1, D5
+            BEQ     LEAAA
+            CMPI    #2, D5
+            BEQ     LEADEREGISTERAA
+            CMPI    #3, D5
+            BEQ     LEAPOSTADDAA
+            CMPI    #4, D5
+            BEQ     LEAPRESUBAA
+            CMPI    #5, D5
+            BEQ     LEAD16AA
+            CMPI    #6, D5
+            BEQ     LEAD8AXA
+            CMPI    #7, D5
+            BEQ     LEAWLD1
+            
+*Print out destination address
+LEANEXT5:
+            MOVE.B  #'A', (A2)+
+            ADD     #'0', D6
+            MOVE.B  D6, (A2)+
+            JMP     EA_FINISH
+            
+LEAWLD1:
+            CMPI    #0, D3
+            BEQ     LEAWORDA
+            CMPI    #1, D3
+            BEQ     LEALONGA
+            CMPI    #4, D3
+            BEQ     LEADATAA
+            
+LEAADD1:
+            ADDI    #1, D3
+            JMP     LEACONTINUE1
+    
+LEAADD2:
+            ADDI    #1, D5
+            JMP     LEACONTINUE2
+LEAADD3:
+            ADDI    #1, D6
+            JMP     LEACONTINUE3
+
+LEAADD4:
+            ADDI    #1, D1
+            JMP     LEACONTINUE4
+    
+LEADA:
+            JMP     E_INPUT
+LEAAA:
+            JMP     E_INPUT
+LEADEREGISTERAA:
+            MOVE.B  #'(', (A2)+
+            MOVE.B  #'A', (A2)+
+            ADD     #'0', D3
+            MOVE.B  D3, (A2)+
+            MOVE.B  #')', (A2)+
+            MOVE.B  #' ', (A2)+
+            JMP     LEANEXT5 
+LEAPOSTADDAA:
+            JMP     E_INPUT
+LEAPRESUBAA:
+            JMP     E_INPUT
+LEAD16AA:
+            MOVE.B  #'(', (A2)+
+            MOVE.B  #'d', (A2)+
+            MOVE.B  #'1', (A2)+
+            MOVE.B  #'6', (A2)+
+            MOVE.B  #',', (A2)+
+            MOVE.B  #'A', (A2)+
+            ADD     #'0', D3
+            MOVE.B  D3, (A2)+
+            MOVE.B  #')', (A2)+
+            MOVE.B  #' ', (A2)+
+            JMP     LEANEXT5
+LEAD8AXA:
+            MOVE.B  #'(', (A2)+
+            MOVE.B  #'d', (A2)+
+            MOVE.B  #'1', (A2)+
+            MOVE.B  #'6', (A2)+
+            MOVE.B  #',', (A2)+
+            MOVE.B  #'A', (A2)+
+            ADD     #'0', D3
+            MOVE.B  D3, (A2)+
+            MOVE.B  #',', (A2)+
+            MOVE.B  #'X', (A2)+
+            MOVE.B  D3, (A2)+
+            MOVE.B  #')', (A2)+
+            MOVE.B  #' ', (A2)+
+            JMP     LEANEXT5
+            
+LEAWORDA:
+            MOVE.B  #'$', (A2)+
+            MOVE    (A4), D5
+            MOVE    #4, D4
+LEALOOP5:
+            MOVE.B  D5, D0
+            AND     #$0F, D0
+            CMPI    #9, D0
+            BLE     LEASINGLEDGT
+            SUB     #10, D0
+            ADD     #'A', D0
+            MOVE.L  D0, -(A7)
+LEACONTINUE5:  
+            SUB     #1, D4
+            LSR     #4, D5
+            CMPI    #0, D4
+            BEQ     LEANEXT6
+            JMP     LEALOOP5
+            
+LEASINGLEDGT:
+            ADD     #'0', D0
+            MOVE.L  D0, -(A7)
+            JMP     LEACONTINUE5
+
+LEANEXT6:
+            MOVE    #4, D4
+LEALOOP6:
+            MOVE.L  (A7)+, D0
+            MOVE.B  D0, (A2)+   
+            SUBI    #1, D4
+            CMPI    #0, D4
+            BEQ     LEANEXT7
+            JMP     LEALOOP6
+LEANEXT7:            
+            MOVE.B  #' ', (A2)+
+            JMP     LEANEXT5
+            
+LEALONGA:
+            MOVE.B  #'$', (A2)+
+            MOVE.L  (A4)+, D5
+            MOVE    #8, D4
+LEALOOP7:
+            MOVE.B  D5, D0
+            AND     #$0F, D0
+            CMPI    #9, D0
+            BLE     LEASINGLEDGT2
+            SUB     #10, D0
+            ADD     #'A', D0
+            MOVE.L  D0, -(A7)
+LEACONTINUE6:  
+            SUB     #1, D4
+            LSR.L   #4, D5
+            CMPI    #0, D4
+            BEQ     LEANEXT8
+            JMP     LEALOOP7
+            
+LEASINGLEDGT2:
+            ADD     #'0', D0
+            MOVE.L  D0, -(A7)
+            JMP     LEACONTINUE6
+
+LEANEXT8:
+            MOVE    #8, D4
+LEALOOP8:
+            MOVE.L  (A7)+, D0
+            MOVE.B  D0, (A2)+   
+            SUBI    #1, D4
+            CMPI    #0, D4
+            BEQ     LEANEXT9
+            JMP     LEALOOP8
+LEANEXT9:            
+            MOVE.B  #' ', (A2)+
+            JMP     LEANEXT5
+            
+LEADATAA:
+            JMP     E_INPUT
+
 
 
 EA_FINISH:
@@ -5199,6 +5667,8 @@ MSG_BUFFER  DC.B    'Buffer Paused. Press enter to continue.', CR, LF, 0
 BUFFER_SIZE EQU     64          ;Size of buffer
 BUFFER      DS.B    BUFFER_SIZE ;Buffer 64 Chars long
     END    START        ; last line of source
+
+
 
 
 
