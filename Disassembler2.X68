@@ -1859,6 +1859,7 @@ ADDD8AXA:
             
 ADDWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 ADDLOOP5:
@@ -1891,11 +1892,15 @@ ADDLOOP6:
             BEQ     ADDNEXT8
             JMP     ADDLOOP6
 ADDNEXT8:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ADDCONTINUE5
             
 ADDLONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
 ADDLOOP7:
@@ -1928,6 +1933,9 @@ ADDLOOP8:
             BEQ     ADDNEXT10
             JMP     ADDLOOP8
 ADDNEXT10:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ADDCONTINUE5
 
@@ -1940,6 +1948,7 @@ ADDDATAA:
             BEQ     ADDLONGA
 *Otherwise, Byte operation
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #2, D4
 ADDBYTELOOP1:
@@ -1973,6 +1982,9 @@ ADDBYTELOOP2:
             JMP     ADDBYTELOOP2
             
 ADDBYTENEXT1:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'B', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ADDCONTINUE5
 
@@ -2033,6 +2045,7 @@ ADDD8AXB:
                         
 ADDWORDB:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 ADDLOOP9:
@@ -2064,11 +2077,15 @@ ADDLOOP10:
             CMPI    #0, D4
             BEQ     ADDNEXT13
             JMP     ADDLOOP10
-ADDNEXT13:            
+ADDNEXT13:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+ 
             JMP     EA_FINISH
             
 ADDLONGB:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
 ADDLOOP11:
@@ -2100,7 +2117,10 @@ ADDLOOP12:
             CMPI    #0, D4
             BEQ     ADDNEXT14
             JMP     ADDLOOP12
-ADDEXT15:            
+ADDEXT15:    
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+        
             JMP     EA_FINISH
 
             
@@ -2277,6 +2297,7 @@ ADDAD8AXA:
                    
 ADDAWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 ADDALOOP4:
@@ -2309,11 +2330,15 @@ ADDALOOP5:
             BEQ     ADDANEXT5
             JMP     ADDALOOP5
 ADDANEXT5:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ADDACONTINUE5
             
 ADDALONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
 ADDALOOP6:
@@ -2346,6 +2371,9 @@ ADDALOOP7:
             BEQ     ADDANEXT7
             JMP     ADDALOOP7
 ADDANEXT7:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ADDACONTINUE5
            
@@ -2411,6 +2439,7 @@ ADDINEXT3:
 ADDIBYTE:
             MOVE.B  #'#', (A2)+
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D7
             MOVE    #2, D4
 ADDIBYTELOOP1:
@@ -2444,12 +2473,16 @@ ADDIBYTELOOP2:
             JMP     ADDIBYTELOOP2
             
 ADDIBYTENEXT1:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'B', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ADDINEXT4
  
 ADDIWORD:       
             MOVE.B  #'#', (A2)+
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D7
             MOVE    #4, D4
 ADDIWORDLOOP1:
@@ -2483,12 +2516,16 @@ ADDIWORDLOOP2:
             JMP     ADDIWORDLOOP2
             
 ADDIWORDNEXT1:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ADDINEXT4
             
 ADDILONG:
             MOVE.B  #'#', (A2)+
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4)+, D7
             MOVE    #8, D4
 ADDILONGLOOP1:
@@ -2522,6 +2559,9 @@ ADDILONGLOOP2:
             JMP     ADDILONGLOOP2
             
 ADDILONGNEXT1:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ADDINEXT4
 
@@ -2550,6 +2590,8 @@ ADDIWLD1:
             BEQ     ADDIWORDA
             CMPI    #1, D3
             BEQ     ADDILONGA
+            CMPI    #4, D3
+            BEQ     ADDIDATAA
             
 ADDIADD1:
             ADDI    #1, D3
@@ -2623,6 +2665,7 @@ ADDID8AXA:
             
 ADDIWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 ADDILOOP4:
@@ -2655,10 +2698,14 @@ ADDILOOP5:
             BEQ     ADDINEXT6
             JMP     ADDILOOP5
 ADDINEXT6:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             JMP     EA_FINISH
             
 ADDILONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
 ADDILOOP6:
@@ -2691,7 +2738,12 @@ ADDILOOP7:
             BEQ     ADDINEXT8
             JMP     ADDILOOP7
 ADDINEXT8:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             JMP     EA_FINISH
+ADDIDATAA:
+            JMP     E_INPUT
 
 *___________________________________________________________
 EA_ADDQ:      ;Also works for SUBQ           
@@ -2761,8 +2813,12 @@ ADDQNEXT3:
             ROL     #3, D6
             MOVE.B  #'#', (A2)+
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             ADD     #'0', D6
             MOVE.B  D6, (A2)+
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'B', (A2)+
             MOVE.B  #' ', (A2)+
 
 *Print out destination mode
@@ -2871,6 +2927,7 @@ ADDQD8AXA:
             
 ADDQWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 ADDQLOOP4:
@@ -2900,10 +2957,16 @@ ADDQLOOP5:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     EA_FINISH
+            BEQ     ADDQWORDFINAL
             JMP     ADDQLOOP5
+ADDQWORDFINAL:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
+            JMP     EA_FINISH
 ADDQLONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
 ADDQLOOP8:
@@ -2933,8 +2996,13 @@ ADDQLOOP9:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     EA_FINISH
+            BEQ     ADDQLONGFINAL
             JMP     ADDQLOOP9
+ADDQLONGFINAL:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
+            JMP     EA_FINISH
             
 ADDQDATAA:
             JMP     E_INPUT
@@ -3074,6 +3142,7 @@ ASLMEMD8AXA:
             
 ASLMEMWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 ASLMEMLOOP4:
@@ -3103,11 +3172,17 @@ ASLMEMLOOP5:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     EA_FINISH
+            BEQ     ASLMEMWORDFINISH
             JMP     ASLMEMLOOP5
+ASLMEMWORDFINISH:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
+            JMP     EA_FINISH
             
 ASLMEMLONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
 ASLMEMLOOP6:
@@ -3137,8 +3212,13 @@ ASLMEMLOOP7:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     EA_FINISH
+            BEQ     ASLMEMLONGFINISH
             JMP     ASLMEMLOOP7
+ASLMEMLONGFINISH:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
+            JMP     EA_FINISH
 *-----------------------------------------------------------
 EA_ASL_REG:                 
 *Get first three bits (destination register)
@@ -3240,7 +3320,7 @@ BCCCONTINUE1:
 BCCNEXT1:
 *Get current address (A4 - 2)
             ROL     #8, D3
-            MOVE    (A4), D6
+            MOVE    (A4)+, D6
 *See if we are getting byte displacement, word displacement, or long displacement
             CMPI    #$00, D3
             BEQ     BCCWORDDIS
@@ -3256,13 +3336,15 @@ BCCWORDDIS:
             JMP     BCCNEXT2
 
 BCCLONGDIS:
-            MOVE.L  (A4), D5
+            MOVE.L  (A4)+, D5
             ADD.L   D5, D6
+            SUB     #2, D6
             JMP     BCCNEXT2
             
 *Print out current address plus displacement
 BCCNEXT2:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    #8, D4
 BCCLOOP2:
             MOVE.B  D6, D0
@@ -3291,8 +3373,13 @@ BCCLOOP3:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ    EA_FINISH
+            BEQ     BCCNEXT4
             JMP     BCCLOOP3
+BCCNEXT4:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
+            JMP     EA_FINISH
             
 BCCADD1:
             ADDI    #1, D3
@@ -3445,6 +3532,7 @@ CLRD8AXA:
             
 CLRWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 CLRLOOP4:
@@ -3474,11 +3562,17 @@ CLRLOOP5:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     EA_FINISH
+            BEQ     CLRWORDFINISH
             JMP     CLRLOOP5
+CLRWORDFINISH:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
+            JMP     EA_FINISH
             
 CLRLONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
 CLRLOOP6:
@@ -3508,8 +3602,13 @@ CLRLOOP7:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     EA_FINISH
+            BEQ     CLRLONGFINISH
             JMP     CLRLOOP7
+CLRLONGFINISH:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
+            JMP     EA_FINISH
             
 CLRDATAA:
             JMP     E_INPUT    
@@ -3733,6 +3832,7 @@ MOVED8AXA:
             
 MOVEWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 MOVELOOP6:
@@ -3765,11 +3865,15 @@ MOVELOOP7:
             BEQ     MOVENEXT8
             JMP     MOVELOOP7
 MOVENEXT8:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     MOVENEXT5
             
 MOVELONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4)+, D5
             MOVE    #8, D4
 MOVELOOP8:
@@ -3801,7 +3905,10 @@ MOVELOOP9:
             CMPI    #0, D4
             BEQ     MOVENEXT10
             JMP     MOVELOOP9
-MOVENEXT10:            
+MOVENEXT10:           
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+ 
             MOVE.B  #' ', (A2)+
             JMP     MOVENEXT5
 
@@ -3814,6 +3921,7 @@ MOVEDATAA:
             BEQ     MOVELONGA
 *Otherwise, Byte operation
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D5
             MOVE    #2, D4
 MOVEBYTELOOP1:
@@ -3847,6 +3955,9 @@ MOVEBYTELOOP2:
             JMP     MOVEBYTELOOP2
             
 MOVEBYTENEXT1:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'B', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     MOVENEXT5
             
@@ -3911,6 +4022,7 @@ MOVED8AXB:
             
 MOVEWORDB:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D5
             MOVE    #4, D4
 MOVELOOP10:
@@ -3943,10 +4055,14 @@ MOVELOOP11:
             BEQ     MOVENEXT13
             JMP     MOVELOOP11
 MOVENEXT13:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             JMP     EA_FINISH
             
 MOVELONGB:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4)+, D5
             MOVE    #8, D4
 MOVELOOP12:
@@ -3979,6 +4095,9 @@ MOVELOOP13:
             BEQ     MOVENEXT15
             JMP     MOVELOOP13
 MOVENEXT15:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             JMP     EA_FINISH
 
             
@@ -3990,6 +4109,7 @@ MOVEDATAB:
             BEQ     MOVELONGA
 *Otherwise, Byte operation
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D5
             MOVE    #2, D4
 MOVEBYTELOOP3:
@@ -4022,6 +4142,9 @@ MOVEBYTELOOP4:
             BEQ     MOVEBYTENEXT2
             JMP     MOVEBYTELOOP4
 MOVEBYTENEXT2:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'B', (A2)+
             JMP     EA_FINISH
 *-----------------------------------------------------------
 EA_MOVEA:                 
@@ -4204,6 +4327,7 @@ MOVEAD8AXA:
             
 MOVEAWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D5
             MOVE    #4, D4
 MOVEALOOP5:
@@ -4236,11 +4360,15 @@ MOVEALOOP6:
             BEQ     MOVEANEXT7
             JMP     MOVEALOOP6
 MOVEANEXT7:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     MOVEANEXT5
             
 MOVEALONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4)+, D5
             MOVE    #8, D4
 MOVEALOOP7:
@@ -4273,6 +4401,9 @@ MOVEALOOP8:
             BEQ     MOVEANEXT9
             JMP     MOVEALOOP8
 MOVEANEXT9:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     MOVEANEXT5
 
@@ -4285,6 +4416,7 @@ MOVEADATAA:
             BEQ     MOVEALONGA
 *Otherwise, Byte operation
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D5
             MOVE    #2, D4
 MOVEABYTELOOP1:
@@ -4318,6 +4450,9 @@ MOVEABYTELOOP2:
             JMP     MOVEABYTELOOP2
             
 MOVEABYTENEXT1:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'B', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     MOVEANEXT5                 
 
@@ -4617,6 +4752,7 @@ MOVEMD8AXA:
             
 MOVEMWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D5
             MOVE    #4, D4
 MOVEMLOOP3:
@@ -4649,11 +4785,15 @@ MOVEMLOOP4:
             BEQ     MOVEMNEXT4
             JMP     MOVEMLOOP4
 MOVEMNEXT4:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     MOVEMCONTINUE4
             
 MOVEMLONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4)+, D5
             MOVE    #8, D4
 MOVEMLOOP5:
@@ -4685,9 +4825,15 @@ MOVEMLOOP6:
             CMPI    #0, D4
             BEQ     MOVEMNEXT6
             JMP     MOVEMLOOP6
+
 MOVEMNEXT6:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     MOVEMCONTINUE4
+            
+       
             
 MOVEMDEREGISTERAB:
             MOVE.B  #'(', (A2)+
@@ -4732,6 +4878,7 @@ MOVEMD8AXB:
             
 MOVEMWORDB:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D5
             MOVE    #4, D4
 MOVEMLOOP7:
@@ -4764,10 +4911,14 @@ MOVEMLOOP8:
             BEQ     MOVEMNEXT8
             JMP     MOVEMLOOP8
 MOVEMNEXT8:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             JMP     EA_FINISH
             
 MOVEMLONGB:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4)+, D5
             MOVE    #8, D4
 MOVEMLOOP9:
@@ -4800,6 +4951,9 @@ MOVEMLOOP10:
             BEQ     MOVEMNEXT10
             JMP     MOVEMLOOP10
 MOVEMNEXT10:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             JMP     EA_FINISH
 
             
@@ -5125,6 +5279,7 @@ MOVEQNEXT2:
             MOVE    #4, D4
             MOVE.B  #'#', (A2)+
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
 MOVEQLOOP3:
             MOVE.B  D3, D0
             AND     #$0F, D0
@@ -5155,6 +5310,9 @@ MOVEQLOOP4:
             BEQ     MOVEQNEXT4
             JMP     MOVEQLOOP4
 MOVEQNEXT4:           
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'B', (A2)+
             MOVE.B  #' ', (A2)+
             MOVE.B  #'D', (A2)+
             ADD     #'0', D5
@@ -5320,6 +5478,7 @@ MULUWORDD8AXA:
                    
 MULUWORDWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D5
             MOVE    #4, D4
 MULUWORDLOOP4:
@@ -5349,11 +5508,19 @@ MULUWORDLOOP5:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     MULUWORDCONTINUE5
+            BEQ     MULUWORDFINISHWORD1
             JMP     MULUWORDLOOP5
+            
+MULUWORDFINISHWORD1:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
+            JMP     MULUWORDCONTINUE5
+
             
 MULUWORDLONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4)+, D5
             MOVE    #8, D4
 MULUWORDLOOP6:
@@ -5383,8 +5550,14 @@ MULUWORDLOOP7:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     MULUWORDCONTINUE5
+            BEQ     MULUWORDFINISHLONG1
             JMP     MULUWORDLOOP7
+            
+MULUWORDFINISHLONG1:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
+            JMP     MULUWORDCONTINUE5
             
 MULUWORDDATAA:
             MOVE.B  #'#', (A2)+
@@ -5394,6 +5567,7 @@ MULUWORDDATAA:
             BEQ     MULUWORDLONGA
 *Otherwise, Byte operation
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D5
             MOVE    #2, D4
 MULUWORDBYTELOOP1:
@@ -5427,6 +5601,9 @@ MULUWORDBYTELOOP2:
             JMP     MULUWORDBYTELOOP2
             
 MULUWORDBYTENEXT1:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'B', (A2)+
             JMP     MULUWORDCONTINUE5
 
 EA_MULU_LONG:                 ;Also works for MULS, DIVS, DIVU (long)
@@ -5627,6 +5804,7 @@ MULULONGD8AXA:
                    
 MULULONGWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 MULULONGLOOP4:
@@ -5656,11 +5834,17 @@ MULULONGLOOP5:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     MULULONGCONTINUE5
             JMP     MULULONGLOOP5
+
+MULULONGWORDFINISH:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
+            JMP     MULULONGCONTINUE5
             
 MULULONGLONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
 MULULONGLOOP6:
@@ -5690,8 +5874,14 @@ MULULONGLOOP7:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     MULULONGCONTINUE5
+            BEQ     MULULONGLONGFINISH
             JMP     MULULONGLOOP7
+            
+MULULONGLONGFINISH:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
+            JMP     MULULONGCONTINUE5
             
 MULULONGDATAA:
             MOVE.B  #'#', (A2)+
@@ -5701,6 +5891,7 @@ MULULONGDATAA:
             BEQ     MULULONGLONGA
 *Otherwise, Byte operation
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #2, D4
 MULULONGBYTELOOP1:
@@ -5734,6 +5925,9 @@ MULULONGBYTELOOP2:
             JMP     MULULONGBYTELOOP2
             
 MULULONGBYTENEXT1:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'B', (A2)+
             JMP     MULULONGCONTINUE5
 *-----------------------------------------------------------
 EA_JSR:                 ;Also used for LEA, JMP
@@ -5865,6 +6059,7 @@ JSRD8AXA:
             
 JSRWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D5
             MOVE    #4, D4
 JSRLOOP4:
@@ -5894,11 +6089,18 @@ JSRLOOP5:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     EA_FINISH
+            BEQ     JSRWORDFINISH
             JMP     JSRLOOP5
+            
+JSRWORDFINISH:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
+            JMP     EA_FINISH
             
 JSRLONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4)+, D5
             MOVE    #8, D4
 JSRLOOP6:
@@ -5928,8 +6130,14 @@ JSRLOOP7:
             MOVE.B  D0, (A2)+   
             SUBI    #1, D4
             CMPI    #0, D4
-            BEQ     EA_FINISH
+            BEQ     JSRLONGFINISH
             JMP     JSRLOOP7
+            
+JSRLONGFINISH:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
+            JMP     EA_FINISH
             
 JSRDATAA:
             JMP     E_INPUT    
@@ -6092,6 +6300,7 @@ LEAD8AXA:
             
 LEAWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 LEALOOP5:
@@ -6123,12 +6332,16 @@ LEALOOP6:
             CMPI    #0, D4
             BEQ     LEANEXT7
             JMP     LEALOOP6
-LEANEXT7:            
+LEANEXT7:           
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+ 
             MOVE.B  #' ', (A2)+
             JMP     LEANEXT5
             
 LEALONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4)+, D5
             MOVE    #8, D4
 LEALOOP7:
@@ -6161,6 +6374,9 @@ LEALOOP8:
             BEQ     LEANEXT9
             JMP     LEALOOP8
 LEANEXT9:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     LEANEXT5
             
@@ -6337,6 +6553,7 @@ EA_STOP:
 *Move immediate data into buffer
             MOVE.B  #'#', (A2)+
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 STOPLOOP1:
@@ -6369,6 +6586,9 @@ STOPLOOP2:
             BEQ     STOPNEXT2
             JMP     STOPLOOP2
 STOPNEXT2:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'B', (A2)+
             JMP     EA_FINISH
 *-----------------------------------------------------------
 EA_EOR:                 
@@ -6588,6 +6808,7 @@ EORD8AXA:
             
 EORWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 EORLOOP5:
@@ -6620,11 +6841,15 @@ EORLOOP6:
             BEQ     EORNEXT8
             JMP     EORLOOP6
 EORNEXT8:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     EORNEXT5
             
 EORLONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
 EORLOOP7:
@@ -6657,6 +6882,9 @@ EORLOOP8:
             BEQ     EORNEXT10
             JMP     EORLOOP8
 EORNEXT10:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     EORNEXT5
             
@@ -6721,6 +6949,7 @@ EORD8AXB:
                         
 EORWORDB:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 EORLOOP9:
@@ -6753,10 +6982,14 @@ EORLOOP10:
             BEQ     EORNEXT13
             JMP     EORLOOP10
 EORNEXT13:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             JMP     EA_FINISH
             
 EORLONGB:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
 EORLOOP11:
@@ -6789,6 +7022,9 @@ EORLOOP12:
             BEQ     EORNEXT14
             JMP     EORLOOP12
 EOREXT15:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             JMP     EA_FINISH
 
             
@@ -7012,6 +7248,7 @@ ORD8AXA:
             
 ORWORDA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 ORLOOP5:
@@ -7044,11 +7281,15 @@ ORLOOP6:
             BEQ     ORNEXT8
             JMP     ORLOOP6
 ORNEXT8:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ORCONTINUE5
             
 ORLONGA:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
 ORLOOP7:
@@ -7081,6 +7322,9 @@ ORLOOP8:
             BEQ     ORNEXT10
             JMP     ORLOOP8
 ORNEXT10:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ORCONTINUE5
 
@@ -7093,6 +7337,7 @@ ORDATAA:
             BEQ     ORLONGA
 *Otherwise, Byte operation
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #2, D4
 ORBYTELOOP1:
@@ -7126,6 +7371,9 @@ ORBYTELOOP2:
             JMP     ORBYTELOOP2
             
 ORBYTENEXT1:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'B', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ORCONTINUE5
 
@@ -7189,6 +7437,7 @@ ORD8AXB:
                         
 ORWORDB:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #4, D4
 ORLOOP9:
@@ -7221,10 +7470,14 @@ ORLOOP10:
             BEQ     ORNEXT13
             JMP     ORLOOP10
 ORNEXT13:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'W', (A2)+
             JMP     EA_FINISH
             
 ORLONGB:
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE.L  (A4), D5
             MOVE    #8, D4
 ORLOOP11:
@@ -7257,6 +7510,9 @@ ORLOOP12:
             BEQ     ORNEXT14
             JMP     ORLOOP12
 OREXT15:            
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'L', (A2)+
             JMP     EA_FINISH
 
             
@@ -7268,6 +7524,7 @@ ORDATAB:
             BEQ     ORLONGB
 *Otherwise, Byte operation
             MOVE.B  #'$', (A2)+
+            MOVE.B  #'(', (A2)+
             MOVE    (A4), D5
             MOVE    #2, D4
 ORBYTELOOP3:
@@ -7301,6 +7558,9 @@ ORBYTELOOP4:
             JMP     ORBYTELOOP4
             
 ORBYTENEXT2:
+            MOVE.B  #')', (A2)+
+            MOVE.B  #'.', (A2)+
+            MOVE.B  #'B', (A2)+
             JMP     EA_FINISH
 
 *-----------------------------------------------------------
@@ -7408,6 +7668,7 @@ MSG_BUFFER  DC.B    'Buffer Paused. Press enter to continue.', CR, LF, 0
 BUFFER_SIZE EQU     64          ;Size of buffer
 BUFFER      DS.B    BUFFER_SIZE ;Buffer 64 Chars long
     END    START        ; last line of source
+
 
 
 
