@@ -2760,6 +2760,7 @@ ADDQCONTINUE3:
 ADDQNEXT3:
             ROL     #3, D6
             MOVE.B  #'#', (A2)+
+            MOVE.B  #'$', (A2)+
             ADD     #'0', D6
             MOVE.B  D6, (A2)+
             MOVE.B  #' ', (A2)+
@@ -7400,6 +7401,7 @@ MSG_BUFFER  DC.B    'Buffer Paused. Press enter to continue.', CR, LF, 0
 BUFFER_SIZE EQU     64          ;Size of buffer
 BUFFER      DS.B    BUFFER_SIZE ;Buffer 64 Chars long
     END    START        ; last line of source
+
 
 
 
