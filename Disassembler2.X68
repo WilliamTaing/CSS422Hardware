@@ -3344,6 +3344,7 @@ CLRCONTINUE3:
 
 *Print out EA
 CLRNEXT3:
+            ROL     #2, D1
             CMPI    #0, D5
             BEQ     CLRDA
             CMPI    #1, D5
@@ -3592,6 +3593,7 @@ MOVECONTINUE5:
 
 *Print out source address
 MOVESOURCE:
+            ROL     #2, D1
             CMPI    #0, D5
             BEQ     MOVEDA
             CMPI    #1, D5
@@ -4086,6 +4088,7 @@ MOVEACONTINUE4:
 
 *Print out source address
 MOVEASOURCE:
+            ROL     #2, D1
             CMPI    #0, D5
             BEQ     MOVEADA
             CMPI    #1, D5
@@ -5458,7 +5461,7 @@ MULULONGCONTINUE2:
             
 *Print source address
 MULULONGNEXT3:
-            ROL     #3, D6
+            ROL     #3, D5
             MOVE    (A4)+, D1   
             CMPI    #0, D5
             BEQ     MULULONGDA
@@ -5494,6 +5497,7 @@ MULULONGDCONTINUE1:
             
 MULULONGDNEXT1:
 *Skip next seven bits
+            ROL     #3, D3
             LSR     #7, D1
             
 *Get next bit (size)
@@ -5519,6 +5523,7 @@ MULULONGDCONTINUE3:
             
 MULULONGDNEXT2:
 *Print out destination register
+            ROL     #3, D6
             CMPI    #0, D5
             BEQ     MULULONGDLONLY
             CMP     D3, D6
@@ -5777,6 +5782,7 @@ JSRCONTINUE3:
 
 *Print out EA
 JSRNEXT3:
+            ROL     #2, D1
             CMPI    #0, D5
             BEQ     JSRDA
             CMPI    #1, D5
@@ -5992,6 +5998,7 @@ LEACONTINUE4:
 
 *Print out source address
 LEASOURCE:
+            ROL     #2, D1
             CMPI    #0, D5
             BEQ     LEADA
             CMPI    #1, D5
@@ -6175,11 +6182,10 @@ EXTCONTINUE1:
             JMP     EXTLOOP1
     
 *Skip next three bits
-            LSR     #3, D2
-    
-*Get next three bits (opmode)
 EXTNEXT1:
-            ROL     #3, D3
+           ROL     #3, D3
+           LSR     #3, D2
+*Get next three bits (opmode)
             MOVE    #3, D4
 EXTLOOP2:
             CMPI    #1, D2
@@ -6194,6 +6200,7 @@ EXTCONTINUE2:
 
 *Print out EA
 EXTNEXT2:
+            ROL     #3, D5
             MOVE.B  #'D', (A2)+
             ADD     #0, D3
             MOVE    D3, (A2)+
@@ -7401,6 +7408,7 @@ MSG_BUFFER  DC.B    'Buffer Paused. Press enter to continue.', CR, LF, 0
 BUFFER_SIZE EQU     64          ;Size of buffer
 BUFFER      DS.B    BUFFER_SIZE ;Buffer 64 Chars long
     END    START        ; last line of source
+
 
 
 
