@@ -3331,8 +3331,9 @@ BCCNEXT1:
             JMP     BCCNEXT2
 
 BCCWORDDIS:
-            MOVE    A4, D5
+            MOVE    (A4)+, D5
             ADD     D5, D6
+            SUB     #2, D6
             JMP     BCCNEXT2
 
 BCCLONGDIS:
@@ -7668,6 +7669,7 @@ MSG_BUFFER  DC.B    'Buffer Paused. Press enter to continue.', CR, LF, 0
 BUFFER_SIZE EQU     64          ;Size of buffer
 BUFFER      DS.B    BUFFER_SIZE ;Buffer 64 Chars long
     END    START        ; last line of source
+
 
 
 
