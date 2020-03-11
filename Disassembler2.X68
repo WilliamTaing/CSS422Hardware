@@ -2432,7 +2432,6 @@ ADDINEXT3:
 ADDIBYTE:
             MOVE.B  #'#', (A2)+
             MOVE.B  #'$', (A2)+
-            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D7
             MOVE    #2, D4
 ADDIBYTELOOP1:
@@ -2466,16 +2465,12 @@ ADDIBYTELOOP2:
             JMP     ADDIBYTELOOP2
             
 ADDIBYTENEXT1:
-            MOVE.B  #')', (A2)+
-            MOVE.B  #'.', (A2)+
-            MOVE.B  #'B', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ADDINEXT4
  
 ADDIWORD:       
             MOVE.B  #'#', (A2)+
             MOVE.B  #'$', (A2)+
-            MOVE.B  #'(', (A2)+
             MOVE    (A4)+, D7
             MOVE    #4, D4
 ADDIWORDLOOP1:
@@ -2509,16 +2504,12 @@ ADDIWORDLOOP2:
             JMP     ADDIWORDLOOP2
             
 ADDIWORDNEXT1:
-            MOVE.B  #')', (A2)+
-            MOVE.B  #'.', (A2)+
-            MOVE.B  #'W', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ADDINEXT4
             
 ADDILONG:
             MOVE.B  #'#', (A2)+
             MOVE.B  #'$', (A2)+
-            MOVE.B  #'(', (A2)+
             MOVE.L  (A4)+, D7
             MOVE    #8, D4
 ADDILONGLOOP1:
@@ -2552,9 +2543,6 @@ ADDILONGLOOP2:
             JMP     ADDILONGLOOP2
             
 ADDILONGNEXT1:
-            MOVE.B  #')', (A2)+
-            MOVE.B  #'.', (A2)+
-            MOVE.B  #'L', (A2)+
             MOVE.B  #' ', (A2)+
             JMP     ADDINEXT4
 
@@ -3309,7 +3297,7 @@ BCCCONTINUE1:
 BCCNEXT1:
 *Get current address (A4 - 2)
             ROL     #8, D3
-            MOVE    (A4)+, D6
+            MOVE    A4, D6
 *See if we are getting byte displacement, word displacement, or long displacement
             CMPI    #$00, D3
             BEQ     BCCWORDDIS
@@ -3321,13 +3309,11 @@ BCCNEXT1:
 
 BCCWORDDIS:
             MOVE    (A4)+, D5
-            SUB     #2, D5
             ADD     D5, D6
             JMP     BCCNEXT2
 
 BCCLONGDIS:
             MOVE.L  (A4)+, D5
-            SUB     #2, D5
             ADD.L   D5, D6
             JMP     BCCNEXT2
             
@@ -7618,6 +7604,7 @@ MSG_BUFFER  DC.B    'Buffer Paused. Press enter to continue.', CR, LF, 0
 BUFFER_SIZE EQU     64          ;Size of buffer
 BUFFER      DS.B    BUFFER_SIZE ;Buffer 64 Chars long
     END    START        ; last line of source
+
 
 
 
