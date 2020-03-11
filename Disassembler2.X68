@@ -5117,6 +5117,7 @@ MOVEQCONTINUE2:
 
 *Print out EA
 MOVEQNEXT2:
+            ROL     #3, D5
             MOVE    #4, D4
             MOVE.B  #'#', (A2)+
             MOVE.B  #'$', (A2)+
@@ -7399,6 +7400,7 @@ MSG_BUFFER  DC.B    'Buffer Paused. Press enter to continue.', CR, LF, 0
 BUFFER_SIZE EQU     64          ;Size of buffer
 BUFFER      DS.B    BUFFER_SIZE ;Buffer 64 Chars long
     END    START        ; last line of source
+
 
 
 
